@@ -1,4 +1,11 @@
-import { Entity, Column, Index, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  Index,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+} from 'typeorm';
 import { BaseOrmEntity } from '@/shared/infrastructure/persistence/base.orm-entity';
 import { MerchantOrmEntity } from './merchant.orm-entity';
 import { CustomerOrmEntity } from '@/modules/customers/infrastructure/persistence/entities/customer.orm-entity';
@@ -16,14 +23,21 @@ export class MerchantUserOrmEntity extends BaseOrmEntity {
   @Column({ name: 'merchant_id', type: 'bigint', nullable: false })
   merchantId: string;
 
-  @ManyToOne(() => MerchantOrmEntity, (merchant) => merchant.merchantUsers, { onDelete: 'CASCADE' })
+  @ManyToOne(() => MerchantOrmEntity, (merchant) => merchant.merchantUsers, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'merchant_id' })
   merchant: MerchantOrmEntity;
 
   @Column({ type: 'varchar', length: 255 })
   email: string;
 
-  @Column({ name: 'password_hash', type: 'varchar', length: 255, select: false })
+  @Column({
+    name: 'password_hash',
+    type: 'varchar',
+    length: 255,
+    select: false,
+  })
   passwordHash: string;
 
   @Column({ name: 'full_name', type: 'varchar', length: 150 })

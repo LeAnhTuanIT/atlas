@@ -16,7 +16,10 @@ export class DeleteCustomerHandler implements ICommandHandler<DeleteCustomerComm
 
   async execute(command: DeleteCustomerCommand): Promise<void> {
     const customerId = new CustomerId(command.id);
-    const existing = await this.customerRepository.findById(command.merchantId, customerId);
+    const existing = await this.customerRepository.findById(
+      command.merchantId,
+      customerId,
+    );
     if (!existing) {
       throw new NotFoundException('Không tìm thấy khách hàng');
     }

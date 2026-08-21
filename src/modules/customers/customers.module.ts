@@ -33,7 +33,7 @@ const CommandHandlers = [
 const QueryHandlers = [
   ListCustomersHandler,
   ExportCustomersHandler,
-  GetCustomerByIdHandler
+  GetCustomerByIdHandler,
 ];
 
 @Module({

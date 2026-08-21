@@ -34,7 +34,7 @@ import { RefreshTokenHandler } from './application/commands/refresh-token/refres
       MerchantUserOrmEntity,
       CustomerOrmEntity,
     ]),
-    CustomersModule
+    CustomersModule,
   ],
   controllers: [AuthController],
   providers: [

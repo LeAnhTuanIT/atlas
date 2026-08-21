@@ -37,14 +37,20 @@ export class CustomerTypeOrmRepository implements ICustomerRepository {
     return entity ? CustomerMapper.toDomain(entity) : null;
   }
 
-  async findByPhone(merchantId: string, phone: PhoneNumber): Promise<Customer | null> {
+  async findByPhone(
+    merchantId: string,
+    phone: PhoneNumber,
+  ): Promise<Customer | null> {
     const entity = await this.repo.findOne({
       where: { merchantId, phone: phone.getValue() },
     });
     return entity ? CustomerMapper.toDomain(entity) : null;
   }
 
-  async findByEmail(merchantId: string, email: Email): Promise<Customer | null> {
+  async findByEmail(
+    merchantId: string,
+    email: Email,
+  ): Promise<Customer | null> {
     const entity = await this.repo.findOne({
       where: { merchantId, email: email.getValue() },
     });
@@ -58,7 +64,8 @@ export class CustomerTypeOrmRepository implements ICustomerRepository {
     const page = params.page || 1;
     const limit = params.limit || 20;
 
-    const qb = this.repo.createQueryBuilder('c')
+    const qb = this.repo
+      .createQueryBuilder('c')
       .where('c.merchantId = :merchantId', { merchantId });
 
     if (params.status) {

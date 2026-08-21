@@ -32,10 +32,17 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const res = exception.getResponse() as any;
-      
-      errorCode = res.error || (status === 401 ? 'UNAUTHORIZED' : 'HTTP_EXCEPTION');
-      message = Array.isArray(res.message) ? res.message[0] : res.message || exception.message;
-      details = Array.isArray(res.message) ? res.message : (typeof res === 'object' && res.message ? null : res);
+
+      errorCode =
+        res.error || (status === 401 ? 'UNAUTHORIZED' : 'HTTP_EXCEPTION');
+      message = Array.isArray(res.message)
+        ? res.message[0]
+        : res.message || exception.message;
+      details = Array.isArray(res.message)
+        ? res.message
+        : typeof res === 'object' && res.message
+          ? null
+          : res;
     } else if (exception instanceof DomainException) {
       errorCode = exception.code;
       message = exception.message;
@@ -54,8 +61,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     }
 
     // Đảm bảo lấy được correlation ID kể cả viết hoa hay thường
-    const headerKey = (CORRELATION_ID_HEADER || 'x-correlation-id').toLowerCase();
-    const correlationId = (request.headers[headerKey] as string) || (request.headers['x-correlation-id'] as string) || null;
+    const headerKey = (
+      CORRELATION_ID_HEADER || 'x-correlation-id'
+    ).toLowerCase();
+    const correlationId =
+      (request.headers[headerKey] as string) ||
+      (request.headers['x-correlation-id'] as string) ||
+      null;
 
     this.logger.error(
       `[${request.method}] ${request.url} | Status: ${status} | Code: ${errorCode} | Msg: ${message} | Correlation: ${correlationId}`,

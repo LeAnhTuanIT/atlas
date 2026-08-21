@@ -17,5 +17,7 @@ export interface AuthTokens {
 export interface ITokenGeneratorPort {
   generateTokens(payload: TokenPayload): Promise<AuthTokens>;
   verifyToken<T extends object = TokenPayload>(token: string): Promise<T>;
-  verifyRefreshToken<T extends object = TokenPayload>(token: string): Promise<T>;
+  verifyRefreshToken<T extends object = TokenPayload>(
+    token: string,
+  ): Promise<T>;
 }

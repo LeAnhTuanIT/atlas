@@ -25,7 +25,6 @@ import { CreateCustomerCommand } from '../../application/commands/create-custome
 import { UpdateCustomerCommand } from '../../application/commands/update-customer/update-customer.command';
 import { ImportCustomersCommand } from '../../application/commands/import-customers/import-customers.command';
 
-
 import { ListCustomersQuery } from '../../application/queries/list-customers/list-customers.query';
 import { ExportCustomersQuery } from '../../application/queries/export-customers/export-customers.query';
 import { GetCustomersDto } from '../../application/dtos/get-customers.dto';
@@ -63,14 +62,15 @@ export class CustomerController {
   @Get()
   async findAll(@Query() queryDto: GetCustomersDto) {
     const merchantId = this.getMerchantId();
-    return this.queryBus.execute(
-      new ListCustomersQuery(merchantId, queryDto),
-    );
+    return this.queryBus.execute(new ListCustomersQuery(merchantId, queryDto));
   }
 
   // 3. EXPORT (CSV / Excel)
   @Get('export')
-  async export(@Res() res: Response, @Query('format') format: 'csv' | 'xlsx' = 'csv') {
+  async export(
+    @Res() res: Response,
+    @Query('format') format: 'csv' | 'xlsx' = 'csv',
+  ) {
     const merchantId = this.getMerchantId();
     const { buffer, filename, contentType } = await this.queryBus.execute(
       new ExportCustomersQuery(merchantId, format),

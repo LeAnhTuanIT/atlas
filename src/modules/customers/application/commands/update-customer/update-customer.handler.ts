@@ -21,7 +21,10 @@ export class UpdateCustomerHandler implements ICommandHandler<UpdateCustomerComm
     const { merchantId, id, dto } = command;
     const customerId = new CustomerId(id);
 
-    const customer = await this.customerRepository.findById(merchantId, customerId);
+    const customer = await this.customerRepository.findById(
+      merchantId,
+      customerId,
+    );
     if (!customer) {
       throw new NotFoundException('Không tìm thấy khách hàng');
     }
@@ -32,7 +35,11 @@ export class UpdateCustomerHandler implements ICommandHandler<UpdateCustomerComm
     const emailVo = dto.email ? new Email(dto.email) : undefined;
 
     if (dto.fullName || phoneVo || emailVo) {
-      boundCustomer.updateProfile(dto.fullName || customer.fullName, phoneVo, emailVo);
+      boundCustomer.updateProfile(
+        dto.fullName || customer.fullName,
+        phoneVo,
+        emailVo,
+      );
     }
 
     if (dto.status === 'BLOCKED') {

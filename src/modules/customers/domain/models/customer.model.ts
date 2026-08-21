@@ -103,14 +103,34 @@ export class Customer extends AggregateRoot {
     this.props.updatedAt = new Date();
   }
 
-  get id(): CustomerId { return this.props.id; }
-  get merchantId(): string { return this.props.merchantId; }
-  get phone(): PhoneNumber | undefined { return this.props.phone; }
-  get email(): Email | undefined { return this.props.email; }
-  get fullName(): string { return this.props.fullName; }
-  get passwordHash(): string | undefined { return this.props.passwordHash; }
-  get status(): CustomerStatus { return this.props.status; }
-  get loyaltyPoints(): number { return this.props.loyaltyPoints; }
-  get createdAt(): Date { return this.props.createdAt; }
-  get updatedAt(): Date { return this.props.updatedAt; }
+  get id(): CustomerId {
+    return this.props.id;
+  }
+  get merchantId(): string {
+    return this.props.merchantId;
+  }
+  get phone(): PhoneNumber | undefined {
+    return this.props.phone;
+  }
+  get email(): Email | undefined {
+    return this.props.email;
+  }
+  get fullName(): string {
+    return this.props.fullName;
+  }
+  get passwordHash(): string | undefined {
+    return this.props.passwordHash;
+  }
+  get status(): CustomerStatus {
+    return this.props.status;
+  }
+  get loyaltyPoints(): number {
+    return this.props.loyaltyPoints;
+  }
+  get createdAt(): Date {
+    return this.props.createdAt;
+  }
+  get updatedAt(): Date {
+    return this.props.updatedAt;
+  }
 }

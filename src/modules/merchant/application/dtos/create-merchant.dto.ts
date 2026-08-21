@@ -17,7 +17,8 @@ export class CreateMerchantDto {
   @MinLength(3, { message: 'Mã Merchant phải có ít nhất 3 ký tự.' })
   @MaxLength(30, { message: 'Mã Merchant không được vượt quá 30 ký tự.' })
   @Matches(/^[a-z0-9_-]+$/, {
-    message: 'Mã Merchant chỉ gồm chữ thường, số, dấu gạch ngang (-) và gạch dưới (_).',
+    message:
+      'Mã Merchant chỉ gồm chữ thường, số, dấu gạch ngang (-) và gạch dưới (_).',
   })
   @Transform(({ value }: { value: string }) => value?.trim().toLowerCase())
   code: string;

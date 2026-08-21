@@ -6,6 +6,10 @@ export interface IMerchantRepository {
   save(merchant: MerchantAggregate): Promise<MerchantAggregate>;
   findByUuid(uuid: string): Promise<MerchantAggregate | null>;
   findByCode(code: string): Promise<MerchantAggregate | null>;
-  findAll(params: { search?: string; page: number; limit: number }): Promise<{ items: MerchantAggregate[]; total: number }>;
+  findAll(params: {
+    search?: string;
+    page: number;
+    limit: number;
+  }): Promise<{ items: MerchantAggregate[]; total: number }>;
   delete(uuid: string): Promise<void>;
 }

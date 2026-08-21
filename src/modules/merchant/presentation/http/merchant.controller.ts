@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Query, UseGuards, HttpCode, HttpStatus, Param, Patch, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { SystemAuthGuard } from '@/shared/infrastructure/auth/guards/auth-guards.guards';
 import { CreateMerchantDto } from '@/modules/merchant/application/dtos/create-merchant.dto';
 import { CreateMerchantUseCase } from '@/modules/merchant/application/commands/create-merchant/create-merchant.handler';
@@ -21,7 +30,11 @@ export class SystemMerchantController {
     @Query('page') page = 1,
     @Query('limit') limit = 10,
   ) {
-    return this.getMerchantsUseCase.execute({ search, page: +page, limit: +limit });
+    return this.getMerchantsUseCase.execute({
+      search,
+      page: +page,
+      limit: +limit,
+    });
   }
 
   @Post()

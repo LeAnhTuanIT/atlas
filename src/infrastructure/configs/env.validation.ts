@@ -1,7 +1,9 @@
 import { z } from 'zod';
 
 export const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
   PORT: z.coerce.number().default(8080),
   HOST: z.string().default('0.0.0.0'),
   API_PREFIX: z.string().default('api/v1'),
@@ -36,7 +38,9 @@ export type EnvConfig = z.infer<typeof envSchema>;
 export const validateEnv = (config: Record<string, unknown>) => {
   const result = envSchema.safeParse(config);
   if (!result.success) {
-    throw new Error(`Config validation error: ${JSON.stringify(result.error.format(), null, 2)}`);
+    throw new Error(
+      `Config validation error: ${JSON.stringify(result.error.format(), null, 2)}`,
+    );
   }
   return result.data;
 };

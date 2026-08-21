@@ -12,7 +12,12 @@ export class SystemUserOrmEntity extends BaseOrmEntity {
   @Column({ type: 'varchar', length: 255, unique: true })
   email: string;
 
-  @Column({ name: 'password_hash', type: 'varchar', length: 255, select: false })
+  @Column({
+    name: 'password_hash',
+    type: 'varchar',
+    length: 255,
+    select: false,
+  })
   passwordHash: string;
 
   @Column({ name: 'full_name', type: 'varchar', length: 150 })

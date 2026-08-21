@@ -22,7 +22,10 @@ async function bootstrap() {
   const nodeEnv = configService.get<string>('NODE_ENV', 'development');
   // Global prefix chỉ để 'api', phần 'v1' do enableVersioning đảm nhiệm
   const apiPrefix = configService.get<string>('API_PREFIX', 'api');
-  const corsOrigin = configService.get<string>('CORS_ORIGIN', 'http://localhost:3000');
+  const corsOrigin = configService.get<string>(
+    'CORS_ORIGIN',
+    'http://localhost:3000',
+  );
 
   // 2. Middlewares cơ sở (Bảo mật, nén, parse cookie)
   app.use(helmet());
@@ -37,7 +40,12 @@ async function bootstrap() {
   app.enableCors({
     origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-correlation-id'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'x-correlation-id',
+    ],
     credentials: true,
   });
 
@@ -89,12 +97,16 @@ async function bootstrap() {
       },
     });
 
-    logger.log(`Swagger documentation available at: http://localhost:${port}/docs`);
+    logger.log(
+      `Swagger documentation available at: http://localhost:${port}/docs`,
+    );
   }
 
   // 8. Khởi chạy ứng dụng
   await app.listen(port, host);
-  logger.log(`🚀 Application is running on: http://${host}:${port}/${apiPrefix}/v1 [${nodeEnv.toUpperCase()}]`);
+  logger.log(
+    `🚀 Application is running on: http://${host}:${port}/${apiPrefix}/v1 [${nodeEnv.toUpperCase()}]`,
+  );
 }
 
 bootstrap();

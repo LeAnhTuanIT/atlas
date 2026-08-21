@@ -27,7 +27,10 @@ export class MerchantAggregate {
   }
 
   public static create(
-    props: Omit<MerchantProps, 'uuid' | 'status'> & { uuid?: string; status?: MerchantStatus },
+    props: Omit<MerchantProps, 'uuid' | 'status'> & {
+      uuid?: string;
+      status?: MerchantStatus;
+    },
   ): MerchantAggregate {
     return new MerchantAggregate({
       ...props,
@@ -59,10 +62,22 @@ export class MerchantAggregate {
   }
 
   // Getters
-  get id(): string | undefined { return this.props.id; }
-  get uuid(): string { return this.props.uuid; }
-  get code(): MerchantCode { return this.props.code; }
-  get name(): string { return this.props.name; }
-  get status(): MerchantStatus { return this.props.status; }
-  get settings(): Record<string, any> | undefined { return this.props.settings; }
+  get id(): string | undefined {
+    return this.props.id;
+  }
+  get uuid(): string {
+    return this.props.uuid;
+  }
+  get code(): MerchantCode {
+    return this.props.code;
+  }
+  get name(): string {
+    return this.props.name;
+  }
+  get status(): MerchantStatus {
+    return this.props.status;
+  }
+  get settings(): Record<string, any> | undefined {
+    return this.props.settings;
+  }
 }

@@ -19,10 +19,13 @@ export class GetMerchantsUseCase {
 
     return {
       items: items.map((m: any) => {
-        const ownerUser = m.merchantUsers?.find((u: any) => u.role === 'OWNER') || m.merchantUsers?.[0];
-        
+        const ownerUser =
+          m.merchantUsers?.find((u: any) => u.role === 'OWNER') ||
+          m.merchantUsers?.[0];
+
         // Hỗ trợ cả trường hợp m.code là Value Object (có .getValue()) hoặc string thuần từ TypeORM
-        const code = typeof m.code?.getValue === 'function' ? m.code.getValue() : m.code;
+        const code =
+          typeof m.code?.getValue === 'function' ? m.code.getValue() : m.code;
 
         return {
           id: m.uuid,

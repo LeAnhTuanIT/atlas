@@ -16,6 +16,8 @@ export interface PaginatedResult<T> {
 export abstract class RepositoryPort<TEntity, TId = string> {
   abstract save(entity: TEntity): Promise<void>;
   abstract findById(id: TId): Promise<TEntity | null>;
-  abstract findAll(params?: PaginatedQueryParams): Promise<PaginatedResult<TEntity>>;
+  abstract findAll(
+    params?: PaginatedQueryParams,
+  ): Promise<PaginatedResult<TEntity>>;
   abstract deleteById(id: TId): Promise<boolean>;
 }

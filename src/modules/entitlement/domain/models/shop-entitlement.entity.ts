@@ -11,7 +11,12 @@ export class ShopEntitlement {
     private isActive: boolean,
   ) {}
 
-  static create(id: string, shopId: string, featureCode: string, durationMonths: number): ShopEntitlement {
+  static create(
+    id: string,
+    shopId: string,
+    featureCode: string,
+    durationMonths: number,
+  ): ShopEntitlement {
     const now = new Date();
     const expiresAt = new Date();
     expiresAt.setMonth(expiresAt.getMonth() + durationMonths);
@@ -39,9 +44,19 @@ export class ShopEntitlement {
   }
 
   // Getters for State Mapping
-  getId(): string { return this.id; }
-  getShopId(): string { return this.shopId; }
-  getFeatureCode(): FeatureCode { return this.featureCode; }
-  getPeriod(): EntitlementPeriod { return this.period; }
-  getIsActive(): boolean { return this.isActive; }
+  getId(): string {
+    return this.id;
+  }
+  getShopId(): string {
+    return this.shopId;
+  }
+  getFeatureCode(): FeatureCode {
+    return this.featureCode;
+  }
+  getPeriod(): EntitlementPeriod {
+    return this.period;
+  }
+  getIsActive(): boolean {
+    return this.isActive;
+  }
 }

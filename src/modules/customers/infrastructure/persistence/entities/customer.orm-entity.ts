@@ -1,5 +1,12 @@
 // customer.orm-entity.ts
-import { Entity, Column, Index, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  Index,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { BaseOrmEntity } from '@/shared/infrastructure/persistence/base.orm-entity';
 import { MerchantOrmEntity } from '@/modules/merchant/infrastructure/persistence/entities/merchant.orm-entity';
 import { CustomerAddressOrmEntity } from './customer-address.orm-entity';
@@ -17,7 +24,9 @@ export class CustomerOrmEntity extends BaseOrmEntity {
   @Column({ name: 'merchant_id', type: 'bigint', nullable: false })
   merchantId: string;
 
-  @ManyToOne(() => MerchantOrmEntity, (merchant) => merchant.customers, { onDelete: 'CASCADE' })
+  @ManyToOne(() => MerchantOrmEntity, (merchant) => merchant.customers, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'merchant_id' })
   merchant: MerchantOrmEntity;
 
@@ -30,7 +39,13 @@ export class CustomerOrmEntity extends BaseOrmEntity {
   @Column({ name: 'full_name', type: 'varchar', length: 150 })
   fullName: string;
 
-  @Column({ name: 'password_hash', type: 'varchar', length: 255, nullable: true, select: false })
+  @Column({
+    name: 'password_hash',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    select: false,
+  })
   passwordHash?: string;
 
   @Column({

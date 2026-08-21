@@ -47,7 +47,9 @@ export class RabbitMQMessagingModule implements OnModuleInit {
     if (this.amqpConnection.connected) {
       this.logger.log('✅ RabbitMQ connected successfully');
     } else {
-      this.logger.warn('⚠️ RabbitMQ is waiting for connection or connecting...');
+      this.logger.warn(
+        '⚠️ RabbitMQ is waiting for connection or connecting...',
+      );
     }
   }
 }

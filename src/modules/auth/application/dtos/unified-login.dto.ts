@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 
 export function IsEmailOrPhone(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'isEmailOrPhone',
       target: object.constructor,
@@ -17,8 +17,8 @@ export function IsEmailOrPhone(validationOptions?: ValidationOptions) {
       validator: {
         validate(value: any, _args: ValidationArguments) {
           if (typeof value !== 'string') {
-            return false
-          };
+            return false;
+          }
 
           // Regex kiểm tra Email chuẩn cơ bản
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -39,7 +39,9 @@ export function IsEmailOrPhone(validationOptions?: ValidationOptions) {
 export class UnifiedLoginDto {
   @IsNotEmpty({ message: 'Số điện thoại hoặc email không được để trống' })
   @IsString()
-  @IsEmailOrPhone({ message: 'Vui lòng nhập đúng định dạng Email hoặc Số điện thoại' })
+  @IsEmailOrPhone({
+    message: 'Vui lòng nhập đúng định dạng Email hoặc Số điện thoại',
+  })
   identifier: string;
 
   @IsOptional()

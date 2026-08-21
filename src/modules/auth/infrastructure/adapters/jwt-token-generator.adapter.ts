@@ -13,9 +13,11 @@ export class JwtTokenGeneratorAdapter implements ITokenGeneratorPort {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
-    verifyRefreshToken<T extends object = TokenPayload>(token: string): Promise<T> {
-        throw new Error('Method not implemented.');
-    }
+  verifyRefreshToken<T extends object = TokenPayload>(
+    _token: string,
+  ): Promise<T> {
+    throw new Error('Method not implemented.');
+  }
 
   async generateTokens(payload: TokenPayload): Promise<AuthTokens> {
     const ttlSeconds = this.configService.get<number>(

@@ -15,7 +15,10 @@ export const KAFKA_SERVICE = 'KAFKA_SERVICE';
           transport: Transport.KAFKA,
           options: {
             client: {
-              clientId: configService.get<string>('KAFKA_CLIENT_ID', 'nestjs-app'),
+              clientId: configService.get<string>(
+                'KAFKA_CLIENT_ID',
+                'nestjs-app',
+              ),
               brokers: configService
                 .get<string>('KAFKA_BROKERS', 'localhost:9092')
                 .split(','),
@@ -36,7 +39,9 @@ export const KAFKA_SERVICE = 'KAFKA_SERVICE';
 export class KafkaMessagingModule implements OnModuleInit {
   private readonly logger = new Logger('KafkaConnection');
 
-  constructor(@Inject(KAFKA_SERVICE) private readonly kafkaClient: ClientKafka) {}
+  constructor(
+    @Inject(KAFKA_SERVICE) private readonly kafkaClient: ClientKafka,
+  ) {}
 
   async onModuleInit() {
     try {

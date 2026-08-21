@@ -20,7 +20,10 @@ export interface CustomerDetailResponse {
 }
 
 @QueryHandler(GetCustomerByIdQuery)
-export class GetCustomerByIdHandler implements IQueryHandler<GetCustomerByIdQuery, CustomerDetailResponse> {
+export class GetCustomerByIdHandler implements IQueryHandler<
+  GetCustomerByIdQuery,
+  CustomerDetailResponse
+> {
   constructor(
     @Inject(CUSTOMER_REPOSITORY)
     private readonly customerRepository: ICustomerRepository,
@@ -30,7 +33,10 @@ export class GetCustomerByIdHandler implements IQueryHandler<GetCustomerByIdQuer
     const { merchantId, id } = query;
     const customerId = new CustomerId(id);
 
-    const customer = await this.customerRepository.findById(merchantId, customerId);
+    const customer = await this.customerRepository.findById(
+      merchantId,
+      customerId,
+    );
     if (!customer) {
       throw new NotFoundException(`Không tìm thấy khách hàng với ID: ${id}`);
     }

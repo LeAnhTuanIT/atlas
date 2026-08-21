@@ -10,7 +10,9 @@ export class ImportCustomersHandler implements ICommandHandler<ImportCustomersCo
     private readonly importQueue: Queue,
   ) {}
 
-  async execute(command: ImportCustomersCommand): Promise<{ jobId: string; message: string }> {
+  async execute(
+    command: ImportCustomersCommand,
+  ): Promise<{ jobId: string; message: string }> {
     const job = await this.importQueue.add('process-import', {
       merchantId: command.merchantId,
       fileBase64: command.fileBuffer.toString('base64'),

@@ -15,9 +15,10 @@ import { MerchantUserOrmEntity } from '@/modules/merchant/infrastructure/persist
 import { CustomerOrmEntity } from '@/modules/customers/infrastructure/persistence/entities/customer.orm-entity';
 
 @CommandHandler(RefreshTokenCommand)
-export class RefreshTokenHandler
-  implements ICommandHandler<RefreshTokenCommand, UnifiedLoginResult>
-{
+export class RefreshTokenHandler implements ICommandHandler<
+  RefreshTokenCommand,
+  UnifiedLoginResult
+> {
   constructor(
     @Inject(TOKEN_GENERATOR_PORT)
     private readonly tokenGenerator: ITokenGeneratorPort,
@@ -34,7 +35,8 @@ export class RefreshTokenHandler
 
     try {
       // 1. Verify Refresh Token qua Token Generator Port
-      const payload = await this.tokenGenerator.verifyRefreshToken(refreshToken);
+      const payload =
+        await this.tokenGenerator.verifyRefreshToken(refreshToken);
 
       if (!payload || !payload.sub || !payload.scope) {
         throw new UnauthorizedException('Payload token không hợp lệ.');
@@ -48,7 +50,10 @@ export class RefreshTokenHandler
         const sysUser = await this.systemUserRepo.findOne({
           where: { id: payload.sub, isActive: true },
         });
-        if (!sysUser) throw new UnauthorizedException('Tài khoản không tồn tại hoặc đã bị khóa.');
+        if (!sysUser)
+          throw new UnauthorizedException(
+            'Tài khoản không tồn tại hoặc đã bị khóa.',
+          );
         user = {
           id: sysUser.id,
           email: sysUser.email,
@@ -60,7 +65,10 @@ export class RefreshTokenHandler
           where: { id: payload.sub, isActive: true },
           relations: { merchant: true },
         });
-        if (!merchantUser) throw new UnauthorizedException('Tài khoản không tồn tại hoặc đã bị khóa.');
+        if (!merchantUser)
+          throw new UnauthorizedException(
+            'Tài khoản không tồn tại hoặc đã bị khóa.',
+          );
         user = {
           id: merchantUser.id,
           email: merchantUser.email,
@@ -78,7 +86,10 @@ export class RefreshTokenHandler
         const customer = await this.customerRepo.findOne({
           where: { id: payload.sub },
         });
-        if (!customer) throw new UnauthorizedException('Khách hàng không tồn tại hoặc đã bị khóa.');
+        if (!customer)
+          throw new UnauthorizedException(
+            'Khách hàng không tồn tại hoặc đã bị khóa.',
+          );
         user = {
           id: customer.id,
           phone: customer.phone,
@@ -89,11 +100,11 @@ export class RefreshTokenHandler
 
       // 3. Cấp cặp Access Token & Refresh Token mới
       const tokens = await this.tokenGenerator.generateTokens({
-          userId: user.id,
-          scope: payload.scope,
-          role: user.role,
-          merchantId: merchantInfo?.id,
-          sub: ''
+        userId: user.id,
+        scope: payload.scope,
+        role: user.role,
+        merchantId: merchantInfo?.id,
+        sub: '',
       });
 
       return {
@@ -102,8 +113,10 @@ export class RefreshTokenHandler
         ...(merchantInfo && { merchant: merchantInfo }),
         tokens,
       };
-    } catch (error) {
-      throw new UnauthorizedException('Phiên đăng nhập đã hết hạn hoặc không hợp lệ.');
+    } catch (_error) {
+      throw new UnauthorizedException(
+        'Phiên đăng nhập đã hết hạn hoặc không hợp lệ.',
+      );
     }
   }
 }

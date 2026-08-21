@@ -8,7 +8,9 @@ export class CustomerAddressOrmEntity extends BaseOrmEntity {
   @Column({ name: 'customer_id', type: 'bigint', nullable: false })
   customerId: string;
 
-  @ManyToOne(() => CustomerOrmEntity, (customer) => customer.addresses, { onDelete: 'CASCADE' })
+  @ManyToOne(() => CustomerOrmEntity, (customer) => customer.addresses, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'customer_id' })
   customer: CustomerOrmEntity;
 

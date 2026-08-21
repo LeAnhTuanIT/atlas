@@ -1,4 +1,4 @@
-import { Customer, CustomerStatus } from '../../../domain/models/customer.model';
+import { Customer } from '../../../domain/models/customer.model';
 import { CustomerOrmEntity } from '../entities/customer.orm-entity';
 import { CustomerId } from '../../../domain/value-objects/customer-id.vo';
 import { PhoneNumber } from '../../../domain/value-objects/phone.vo';
@@ -13,7 +13,7 @@ export class CustomerMapper {
       phone: entity.phone ? new PhoneNumber(entity.phone) : undefined,
       email: entity.email ? new Email(entity.email) : undefined,
       passwordHash: entity.passwordHash,
-      status: entity.status as CustomerStatus,
+      status: entity.status,
       loyaltyPoints: entity.loyaltyPoints ?? 0,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,

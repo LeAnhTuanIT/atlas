@@ -1,5 +1,10 @@
 // presentation/guards/feature.guard.ts
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { FEATURE_KEY } from '../decorators/require-feature.decorator';
 import { CheckFeatureAccessHandler } from '../../application/queries/check-feature-access.handler';
@@ -12,10 +17,10 @@ export class FeatureGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredFeature = this.reflector.getAllAndOverride<string>(FEATURE_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requiredFeature = this.reflector.getAllAndOverride<string>(
+      FEATURE_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
     if (!requiredFeature) return true;
 
@@ -26,7 +31,10 @@ export class FeatureGuard implements CanActivate {
       throw new ForbiddenException('Shop identity context is missing.');
     }
 
-    const hasAccess = await this.checkAccessHandler.execute(shopId, requiredFeature);
+    const hasAccess = await this.checkAccessHandler.execute(
+      shopId,
+      requiredFeature,
+    );
     if (!hasAccess) {
       throw new ForbiddenException({
         errorCode: 'FEATURE_ENTITLEMENT_REQUIRED',

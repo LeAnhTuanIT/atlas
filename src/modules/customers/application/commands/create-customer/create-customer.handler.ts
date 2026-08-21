@@ -21,21 +21,31 @@ export class CreateCustomerHandler implements ICommandHandler<CreateCustomerComm
     const { merchantId, fullName, phone, email, password } = command;
 
     if (!phone && !email) {
-      throw new BadRequestException('Phải cung cấp ít nhất số điện thoại hoặc email');
+      throw new BadRequestException(
+        'Phải cung cấp ít nhất số điện thoại hoặc email',
+      );
     }
 
     const phoneVo = phone ? new PhoneNumber(phone) : undefined;
     const emailVo = email ? new Email(email) : undefined;
 
     if (phoneVo) {
-      const existingPhone = await this.customerRepository.findByPhone(merchantId, phoneVo);
+      const existingPhone = await this.customerRepository.findByPhone(
+        merchantId,
+        phoneVo,
+      );
       if (existingPhone) {
-        throw new ConflictException('Khách hàng với số điện thoại này đã tồn tại');
+        throw new ConflictException(
+          'Khách hàng với số điện thoại này đã tồn tại',
+        );
       }
     }
 
     if (emailVo) {
-      const existingEmail = await this.customerRepository.findByEmail(merchantId, emailVo);
+      const existingEmail = await this.customerRepository.findByEmail(
+        merchantId,
+        emailVo,
+      );
       if (existingEmail) {
         throw new ConflictException('Khách hàng với email này đã tồn tại');
       }

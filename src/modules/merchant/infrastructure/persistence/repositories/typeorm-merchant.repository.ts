@@ -17,7 +17,7 @@ export class TypeOrmMerchantRepository implements IMerchantRepository {
   async save(merchant: MerchantAggregate): Promise<MerchantAggregate> {
     const raw = MerchantMapper.toOrm(merchant);
     const saved = await this.repo.save(raw);
-    return MerchantMapper.toDomain(saved as MerchantOrmEntity);
+    return MerchantMapper.toDomain(saved);
   }
 
   async findByUuid(uuid: string): Promise<MerchantAggregate | null> {
@@ -40,7 +40,11 @@ export class TypeOrmMerchantRepository implements IMerchantRepository {
     return found ? MerchantMapper.toDomain(found) : null;
   }
 
-  async findAll(params: { search?: string; page: number; limit: number }): Promise<{ items: any[]; total: number }> {
+  async findAll(params: {
+    search?: string;
+    page: number;
+    limit: number;
+  }): Promise<{ items: any[]; total: number }> {
     const { search = '', page = 1, limit = 10 } = params;
     const qb = this.repo
       .createQueryBuilder('m')
@@ -48,9 +52,12 @@ export class TypeOrmMerchantRepository implements IMerchantRepository {
       .where('m.deletedAt IS NULL');
 
     if (search) {
-      qb.andWhere('(m.name ILIKE :search OR m.code ILIKE :search OR mu.email ILIKE :search)', {
-        search: `%${search}%`,
-      });
+      qb.andWhere(
+        '(m.name ILIKE :search OR m.code ILIKE :search OR mu.email ILIKE :search)',
+        {
+          search: `%${search}%`,
+        },
+      );
     }
 
     qb.skip((page - 1) * limit)

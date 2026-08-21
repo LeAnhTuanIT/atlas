@@ -17,7 +17,8 @@ export class ExportCustomersHandler implements IQueryHandler<ExportCustomersQuer
     const customers = await this.repo.findAll(query.merchantId);
 
     // Xuất CSV đơn giản (nếu muốn xlsx dùng thư viện `exceljs`)
-    const header = 'ID,Full Name,Phone,Email,Status,Loyalty Points,Created At\n';
+    const header =
+      'ID,Full Name,Phone,Email,Status,Loyalty Points,Created At\n';
     const rows = customers
       .map(
         (c) =>

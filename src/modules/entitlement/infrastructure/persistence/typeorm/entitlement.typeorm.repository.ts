@@ -14,7 +14,10 @@ export class EntitlementTypeormRepository implements IEntitlementRepository {
     private readonly ormRepo: Repository<ShopEntitlementOrmEntity>,
   ) {}
 
-  async findByShopAndFeature(shopId: string, featureCode: string): Promise<ShopEntitlement | null> {
+  async findByShopAndFeature(
+    shopId: string,
+    featureCode: string,
+  ): Promise<ShopEntitlement | null> {
     const record = await this.ormRepo.findOne({
       where: { shopId, featureId: featureCode.toUpperCase() },
     });

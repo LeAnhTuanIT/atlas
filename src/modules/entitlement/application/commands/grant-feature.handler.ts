@@ -25,12 +25,20 @@ export class GrantFeatureHandler {
   ) {}
 
   async execute(cmd: GrantFeatureCommand): Promise<void> {
-    let entitlement = await this.entitlementRepo.findByShopAndFeature(cmd.shopId, cmd.featureCode);
+    let entitlement = await this.entitlementRepo.findByShopAndFeature(
+      cmd.shopId,
+      cmd.featureCode,
+    );
 
     if (entitlement) {
       entitlement.extendDuration(cmd.durationMonths);
     } else {
-      entitlement = ShopEntitlement.create(randomUUID(), cmd.shopId, cmd.featureCode, cmd.durationMonths);
+      entitlement = ShopEntitlement.create(
+        randomUUID(),
+        cmd.shopId,
+        cmd.featureCode,
+        cmd.durationMonths,
+      );
     }
 
     await this.entitlementRepo.save(entitlement);

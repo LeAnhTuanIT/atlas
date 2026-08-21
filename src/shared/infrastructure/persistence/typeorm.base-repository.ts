@@ -49,7 +49,7 @@ export abstract class TypeOrmBaseRepository<
     // Nếu client truyền UUID của record cuối cùng từ trang trước
     if (cursorUuid) {
       const operator = order === 'DESC' ? '<' : '>';
-      
+
       // Subquery tối ưu: Lấy id tự tăng từ UUID để làm mốc lọc
       qb.andWhere(
         `${this.alias}.id ${operator} (
@@ -68,9 +68,8 @@ export abstract class TypeOrmBaseRepository<
     const nodes = hasNextPage ? ormEntities.slice(0, limit) : ormEntities;
 
     // UUID của phần tử cuối cùng sẽ trở thành nextCursorUuid
-    const nextCursorUuid = hasNextPage && nodes.length > 0 
-      ? nodes[nodes.length - 1].uuid 
-      : null;
+    const nextCursorUuid =
+      hasNextPage && nodes.length > 0 ? nodes[nodes.length - 1].uuid : null;
 
     const domainEntities = nodes.map((e) => this.mapper.toDomain(e));
 

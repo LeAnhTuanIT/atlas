@@ -18,9 +18,10 @@ export interface ApiResponse<T> {
 }
 
 @Injectable()
-export class ResponseTransformInterceptor<T>
-  implements NestInterceptor<T, ApiResponse<T>>
-{
+export class ResponseTransformInterceptor<T> implements NestInterceptor<
+  T,
+  ApiResponse<T>
+> {
   intercept(
     context: ExecutionContext,
     next: CallHandler,
@@ -35,7 +36,8 @@ export class ResponseTransformInterceptor<T>
         statusCode: response.statusCode,
         data,
         timestamp: new Date().toISOString(),
-        correlationId: (request.headers[CORRELATION_ID_HEADER] as string) || null,
+        correlationId:
+          (request.headers[CORRELATION_ID_HEADER] as string) || null,
       })),
     );
   }

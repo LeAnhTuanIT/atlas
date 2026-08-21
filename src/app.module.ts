@@ -13,9 +13,9 @@ import { ClsModule } from 'nestjs-cls';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ 
+    ConfigModule.forRoot({
       isGlobal: true,
-      validate: validateEnv, 
+      validate: validateEnv,
     }),
     ClsModule.forRoot({
       global: true,
@@ -27,7 +27,7 @@ import { ClsModule } from 'nestjs-cls';
     RabbitMQMessagingModule,
     SharedModule,
     AuthModule,
-    MerchantModule
+    MerchantModule,
   ],
 })
 export class AppModule implements NestModule {

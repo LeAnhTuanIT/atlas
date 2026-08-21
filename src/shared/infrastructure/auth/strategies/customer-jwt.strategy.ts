@@ -6,18 +6,26 @@ import { ConfigService } from '@nestjs/config';
 import { CustomerJwtPayload } from '../auth-payloads.interface';
 
 @Injectable()
-export class CustomerJwtStrategy extends PassportStrategy(Strategy, 'jwt-customer') {
+export class CustomerJwtStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-customer',
+) {
   constructor(configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_CUSTOMER_SECRET', 'secret_customer_key'),
+      secretOrKey: configService.get<string>(
+        'JWT_CUSTOMER_SECRET',
+        'secret_customer_key',
+      ),
     });
   }
 
-  async validate(payload: CustomerJwtPayload) {
+  validate(payload: CustomerJwtPayload) {
     if (payload.scope !== 'CUSTOMER' || !payload.merchantId) {
-      throw new UnauthorizedException('Token không hợp lệ cho phân quyền Khách hàng.');
+      throw new UnauthorizedException(
+        'Token không hợp lệ cho phân quyền Khách hàng.',
+      );
     }
     return payload;
   }

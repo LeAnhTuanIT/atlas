@@ -17,12 +17,21 @@ export class RedisEntitlementCacheService implements IEntitlementCacheService {
     return `entitlements:shop:${shopId}`;
   }
 
-  async getFeatureExpiration(shopId: string, featureCode: string): Promise<number | null> {
-    const score = await this.redis.zscore(this.getKey(shopId), featureCode.toUpperCase());
+  async getFeatureExpiration(
+    shopId: string,
+    featureCode: string,
+  ): Promise<number | null> {
+    const score = await this.redis.zscore(
+      this.getKey(shopId),
+      featureCode.toUpperCase(),
+    );
     return score !== null ? Number(score) : null;
   }
 
-  async setShopActiveFeatures(shopId: string, entitlements: ShopEntitlement[]): Promise<void> {
+  async setShopActiveFeatures(
+    shopId: string,
+    entitlements: ShopEntitlement[],
+  ): Promise<void> {
     const key = this.getKey(shopId);
     await this.redis.del(key);
 
@@ -30,7 +39,10 @@ export class RedisEntitlementCacheService implements IEntitlementCacheService {
 
     const zsetArgs: (string | number)[] = [];
     entitlements.forEach((e) => {
-      zsetArgs.push(e.getPeriod().getExpiresTimestampSeconds(), e.getFeatureCode().getValue());
+      zsetArgs.push(
+        e.getPeriod().getExpiresTimestampSeconds(),
+        e.getFeatureCode().getValue(),
+      );
     });
 
     await this.redis.zadd(key, ...(zsetArgs as [number, string]));

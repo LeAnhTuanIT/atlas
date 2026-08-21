@@ -20,9 +20,11 @@ export class CustomerImportConsumer extends WorkerHost {
     super();
   }
 
-  async process(job: Job<{ merchantId: string; fileBase64: string; fileName: string }>): Promise<void> {
+  async process(
+    job: Job<{ merchantId: string; fileBase64: string; fileName: string }>,
+  ): Promise<void> {
     this.logger.log(`Processing import for merchant: ${job.data.merchantId}`);
-    
+
     const buffer = Buffer.from(job.data.fileBase64, 'base64');
     const content = buffer.toString('utf-8');
     const lines = content.split('\n').filter((l) => l.trim().length > 0);
@@ -52,7 +54,9 @@ export class CustomerImportConsumer extends WorkerHost {
 
     if (customersToInsert.length > 0) {
       await this.customerRepository.saveMany(customersToInsert);
-      this.logger.log(`Imported ${customersToInsert.length} customers successfully.`);
+      this.logger.log(
+        `Imported ${customersToInsert.length} customers successfully.`,
+      );
     }
   }
 }

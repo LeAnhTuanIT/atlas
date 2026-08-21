@@ -1,4 +1,10 @@
-import { IsEmail, IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 import { CustomerStatus } from '../../domain/models/customer.model';
 
 export class UpdateCustomerDto {

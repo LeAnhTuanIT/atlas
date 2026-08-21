@@ -1,15 +1,16 @@
 import { AsyncLocalStorage } from 'async_hooks';
 
 export interface MerchantContextData {
-  userId: string;       // merchant_user.uuid hoặc system_user.uuid
-  merchantId: string;   // merchant.id (BigInt dạng string)
-  role?: string;        // 'OWNER' | 'ADMIN' | 'STAFF'
+  userId: string; // merchant_user.uuid hoặc system_user.uuid
+  merchantId: string; // merchant.id (BigInt dạng string)
+  role?: string; // 'OWNER' | 'ADMIN' | 'STAFF'
   permissions?: string[];
   isSuperAdmin?: boolean;
 }
 
 export class MerchantContext {
-  private static readonly storage = new AsyncLocalStorage<MerchantContextData>();
+  private static readonly storage =
+    new AsyncLocalStorage<MerchantContextData>();
 
   /**
    * Khởi tạo và bao bọc execution context trong vòng đời của 1 Request
