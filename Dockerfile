@@ -16,11 +16,13 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy only production artifacts
+# Install only production dependencies using npm (avoids bun/node native module mismatch)
+COPY package.json package-lock.json* ./
+RUN npm install --omit=dev --ignore-scripts
+
+# Copy compiled output
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
 
 EXPOSE 3000
 
-CMD ["node", "-r", "tsconfig-paths/register", "dist/main.js"]
+CMD ["node", "-r", "tsconfig-paths/register", "dist/src/main.js"]

@@ -66,7 +66,7 @@ jobs:
         run: bun x tsc --noEmit
 
       - name: Unit tests
-        run: bun run test --passWithNoTests
+        run: bun run test -- --passWithNoTests
         env:
           NODE_ENV: test
           DB_HOST: localhost
@@ -78,7 +78,7 @@ jobs:
           REDIS_PORT: 6379
 
       - name: Test coverage
-        run: bun run test:cov --passWithNoTests
+        run: bun run test:cov -- --passWithNoTests
         env:
           NODE_ENV: test
           DB_HOST: localhost

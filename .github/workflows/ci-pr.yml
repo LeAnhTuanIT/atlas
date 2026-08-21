@@ -67,7 +67,7 @@ jobs:
         run: bun x tsc --noEmit
 
       - name: Unit tests
-        run: bun run test --passWithNoTests
+        run: bun run test -- --passWithNoTests
         env:
           NODE_ENV: test
           DB_HOST: localhost
