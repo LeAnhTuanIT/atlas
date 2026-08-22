@@ -22,15 +22,13 @@ export class VnPayGateway implements IPaymentGateway {
     params: CreatePaymentParams,
   ): Promise<{ paymentUrl: string; qrCode?: string }> {
     const tmnCode = (
-      this.configService.get<string>('VNPAY_TMN_CODE') || 'FNHQJMAZ'
+      this.configService.getOrThrow<string>('VNPAY_TMN_CODE')
     ).trim();
     const secretKey = (
-      this.configService.get<string>('VNPAY_HASH_SECRET') ||
-      'DIJXFZIWSUPLVBUJVTSVUVJAPYJMUTEW'
+      this.configService.getOrThrow<string>('VNPAY_HASH_SECRET')
     ).trim();
     const vnpUrl = (
-      this.configService.get<string>('VNPAY_URL') ||
-      'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'
+      this.configService.getOrThrow<string>('VNPAY_URL')
     ).trim();
     const returnUrl = (
       this.configService.get<string>('VNPAY_RETURN_URL') || params.returnUrl

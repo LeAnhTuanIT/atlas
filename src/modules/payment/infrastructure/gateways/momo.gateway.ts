@@ -26,15 +26,13 @@ export class MoMoGateway implements IPaymentGateway {
       this.configService.get<string>('MOMO_PARTNER_CODE') || 'MOMO'
     ).trim();
     const accessKey = (
-      this.configService.get<string>('MOMO_ACCESS_KEY') || 'F8BBA842ECF85'
+      this.configService.getOrThrow<string>('MOMO_ACCESS_KEY')
     ).trim();
     const secretKey = (
-      this.configService.get<string>('MOMO_SECRET_KEY') ||
-      'K951B6PE1waDMi640xX08PD3vg6EkVlz'
+      this.configService.getOrThrow<string>('MOMO_SECRET_KEY')
     ).trim();
     const endpoint = (
-      this.configService.get<string>('MOMO_API_ENDPOINT') ||
-      'https://test-payment.momo.vn/v2/gateway/api/create'
+      this.configService.getOrThrow<string>('MOMO_API_ENDPOINT')
     ).trim();
 
     const orderId = String(
