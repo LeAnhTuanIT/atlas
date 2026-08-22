@@ -6,14 +6,7 @@ import { ENTITLEMENT_REPOSITORY } from '../../domain/repositories/entitlement.re
 import type { IEntitlementRepository } from '../../domain/repositories/entitlement.repository.interface';
 import { ENTITLEMENT_CACHE_SERVICE } from '../../domain/services/entitlement-cache.interface';
 import type { IEntitlementCacheService } from '../../domain/services/entitlement-cache.interface';
-
-export class GrantFeatureCommand {
-  constructor(
-    public readonly shopId: string,
-    public readonly featureCode: string,
-    public readonly durationMonths: number,
-  ) {}
-}
+import { GrantFeatureCommand } from './grant-feature.command';
 
 @Injectable()
 export class GrantFeatureHandler {
@@ -25,8 +18,8 @@ export class GrantFeatureHandler {
   ) {}
 
   async execute(cmd: GrantFeatureCommand): Promise<void> {
-    let entitlement = await this.entitlementRepo.findByShopAndFeature(
-      cmd.shopId,
+    let entitlement = await this.entitlementRepo.findByMerchantAndFeature(
+      cmd.merchantId,
       cmd.featureCode,
     );
 
@@ -35,7 +28,7 @@ export class GrantFeatureHandler {
     } else {
       entitlement = ShopEntitlement.create(
         randomUUID(),
-        cmd.shopId,
+        cmd.merchantId,
         cmd.featureCode,
         cmd.durationMonths,
       );
@@ -43,7 +36,12 @@ export class GrantFeatureHandler {
 
     await this.entitlementRepo.save(entitlement);
 
-    const activeList = await this.entitlementRepo.findActiveByShop(cmd.shopId);
-    await this.cacheService.setShopActiveFeatures(cmd.shopId, activeList);
+    const activeList = await this.entitlementRepo.findActiveByMerchant(
+      cmd.merchantId,
+    );
+    await this.cacheService.setMerchantActiveFeatures(
+      cmd.merchantId,
+      activeList,
+    );
   }
 }

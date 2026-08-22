@@ -8,8 +8,12 @@ export interface IMerchantRepository {
   findByCode(code: string): Promise<MerchantAggregate | null>;
   findAll(params: {
     search?: string;
-    page: number;
+    cursor?: string;
     limit: number;
-  }): Promise<{ items: MerchantAggregate[]; total: number }>;
+  }): Promise<{
+    items: MerchantAggregate[];
+    hasNextPage: boolean;
+    nextCursor: string | null;
+  }>;
   delete(uuid: string): Promise<void>;
 }

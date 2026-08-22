@@ -14,12 +14,12 @@ export class CheckFeatureAccessHandler {
     private readonly entitlementRepo: IEntitlementRepository,
   ) {}
 
-  async execute(shopId: string, featureCode: string): Promise<boolean> {
+  async execute(merchantId: string, featureCode: string): Promise<boolean> {
     const nowSeconds = Math.floor(Date.now() / 1000);
 
     // 1. Check L1: Cache (Redis)
     const cachedExpiresAt = await this.cacheService.getFeatureExpiration(
-      shopId,
+      merchantId,
       featureCode,
     );
     if (cachedExpiresAt !== null) {
@@ -28,8 +28,11 @@ export class CheckFeatureAccessHandler {
 
     // 2. Fallback L2: Database & Warm-up Cache
     const activeEntitlements =
-      await this.entitlementRepo.findActiveByShop(shopId);
-    await this.cacheService.setShopActiveFeatures(shopId, activeEntitlements);
+      await this.entitlementRepo.findActiveByMerchant(merchantId);
+    await this.cacheService.setMerchantActiveFeatures(
+      merchantId,
+      activeEntitlements,
+    );
 
     const target = activeEntitlements.find(
       (e) => e.getFeatureCode().getValue() === featureCode.toUpperCase(),

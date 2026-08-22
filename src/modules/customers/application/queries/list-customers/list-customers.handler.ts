@@ -15,7 +15,10 @@ export class ListCustomersHandler implements IQueryHandler<ListCustomersQuery> {
 
   async execute(query: ListCustomersQuery) {
     const { merchantId, params } = query;
-    const { data, total } = await this.repo.findPaginated(merchantId, params);
+    const { data, hasNextPage, nextCursor } = await this.repo.findPaginated(
+      merchantId,
+      params,
+    );
 
     return {
       data: data.map((c) => ({
@@ -28,10 +31,9 @@ export class ListCustomersHandler implements IQueryHandler<ListCustomersQuery> {
         createdAt: c.createdAt,
       })),
       meta: {
-        total,
-        page: params.page,
         limit: params.limit,
-        totalPages: Math.ceil(total / params.limit),
+        hasNextPage,
+        nextCursor,
       },
     };
   }

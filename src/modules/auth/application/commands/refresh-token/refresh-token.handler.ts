@@ -1,6 +1,6 @@
-// refresh-token.handler.ts
+// src/modules/auth/application/commands/refresh-token/refresh-token.handler.ts
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Inject, UnauthorizedException } from '@nestjs/common';
+import { Inject, UnauthorizedException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -19,6 +19,8 @@ export class RefreshTokenHandler implements ICommandHandler<
   RefreshTokenCommand,
   UnifiedLoginResult
 > {
+  private readonly logger = new Logger(RefreshTokenHandler.name);
+
   constructor(
     @Inject(TOKEN_GENERATOR_PORT)
     private readonly tokenGenerator: ITokenGeneratorPort,
@@ -33,8 +35,12 @@ export class RefreshTokenHandler implements ICommandHandler<
   async execute(command: RefreshTokenCommand): Promise<UnifiedLoginResult> {
     const { refreshToken } = command;
 
+    if (!refreshToken) {
+      throw new UnauthorizedException('Không tìm thấy Refresh Token.');
+    }
+
     try {
-      // 1. Verify Refresh Token qua Token Generator Port
+      // 1. Verify Refresh Token
       const payload =
         await this.tokenGenerator.verifyRefreshToken(refreshToken);
 
@@ -42,69 +48,93 @@ export class RefreshTokenHandler implements ICommandHandler<
         throw new UnauthorizedException('Payload token không hợp lệ.');
       }
 
-      // 2. Kiểm tra entity tương ứng trong DB còn active không
+      const identifier = String(payload.sub);
+      const isNumeric = /^\d+$/.test(identifier);
+
       let user: any = null;
       let merchantInfo: any = undefined;
 
+      // 2. Tìm entity theo UUID hoặc ID
       if (payload.scope === 'SYSTEM') {
+        const queryCondition = isNumeric
+          ? { id: identifier as any, isActive: true }
+          : { uuid: identifier, isActive: true };
+
         const sysUser = await this.systemUserRepo.findOne({
-          where: { id: payload.sub, isActive: true },
+          where: queryCondition,
         });
-        if (!sysUser)
+
+        if (!sysUser) {
           throw new UnauthorizedException(
-            'Tài khoản không tồn tại hoặc đã bị khóa.',
+            'Tài khoản System không tồn tại hoặc đã bị khóa.',
           );
+        }
+
         user = {
-          id: sysUser.id,
+          id: sysUser.uuid,
           email: sysUser.email,
           fullName: sysUser.fullName,
           role: sysUser.role,
         };
       } else if (payload.scope === 'MERCHANT') {
+        // FIX: Ưu tiên tìm theo uuid nếu sub là chuỗi UUID
+        const queryCondition = isNumeric
+          ? { id: identifier as any, isActive: true }
+          : { uuid: identifier, isActive: true };
+
         const merchantUser = await this.merchantUserRepo.findOne({
-          where: { id: payload.sub, isActive: true },
+          where: queryCondition,
           relations: { merchant: true },
         });
-        if (!merchantUser)
+
+        if (!merchantUser) {
           throw new UnauthorizedException(
-            'Tài khoản không tồn tại hoặc đã bị khóa.',
+            'Tài khoản Merchant không tồn tại hoặc đã bị khóa.',
           );
+        }
+
         user = {
-          id: merchantUser.id,
+          id: merchantUser.uuid,
           email: merchantUser.email,
           fullName: merchantUser.fullName,
           role: merchantUser.role,
         };
+
         if (merchantUser.merchant) {
           merchantInfo = {
-            id: merchantUser.merchant.id,
+            id: merchantUser.merchant.uuid,
             code: merchantUser.merchant.code,
             name: merchantUser.merchant.name,
           };
         }
       } else if (payload.scope === 'CUSTOMER') {
+        const queryCondition = isNumeric
+          ? { id: identifier as any }
+          : { uuid: identifier };
+
         const customer = await this.customerRepo.findOne({
-          where: { id: payload.sub },
+          where: queryCondition,
         });
-        if (!customer)
-          throw new UnauthorizedException(
-            'Khách hàng không tồn tại hoặc đã bị khóa.',
-          );
+
+        if (!customer) {
+          throw new UnauthorizedException('Khách hàng không tồn tại.');
+        }
+
         user = {
-          id: customer.id,
+          id: customer.uuid,
           phone: customer.phone,
           fullName: customer.fullName,
           role: 'CUSTOMER',
         };
       }
 
-      // 3. Cấp cặp Access Token & Refresh Token mới
+      // 3. Cấp cặp token mới với sub giữ nguyên định dạng UUID của user
       const tokens = await this.tokenGenerator.generateTokens({
         userId: user.id,
+        sub: user.id,
         scope: payload.scope,
         role: user.role,
         merchantId: merchantInfo?.id,
-        sub: '',
       });
 
       return {
@@ -113,9 +143,14 @@ export class RefreshTokenHandler implements ICommandHandler<
         ...(merchantInfo && { merchant: merchantInfo }),
         tokens,
       };
-    } catch (_error) {
+    } catch (error: any) {
+      this.logger.error(`Lỗi Refresh Token chi tiết: ${error?.message}`);
+
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
       throw new UnauthorizedException(
-        'Phiên đăng nhập đã hết hạn hoặc không hợp lệ.',
+        error?.message || 'Phiên đăng nhập đã hết hạn hoặc không hợp lệ.',
       );
     }
   }

@@ -2,6 +2,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ShopEntitlementOrmEntity } from './infrastructure/persistence/typeorm/entities/shop-entitlement.orm-entity';
+import { FeatureOrmEntity } from './infrastructure/persistence/typeorm/entities/feature.orm-entity';
 import { ENTITLEMENT_REPOSITORY } from './domain/repositories/entitlement.repository.interface';
 import { ENTITLEMENT_CACHE_SERVICE } from './domain/services/entitlement-cache.interface';
 import { EntitlementTypeormRepository } from './infrastructure/persistence/typeorm/entitlement.typeorm.repository';
@@ -11,7 +12,9 @@ import { GrantFeatureHandler } from './application/commands/grant-feature.handle
 import { FeatureGuard } from './presentation/guards/feature.guard';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ShopEntitlementOrmEntity])],
+  imports: [
+    TypeOrmModule.forFeature([ShopEntitlementOrmEntity, FeatureOrmEntity]),
+  ],
   providers: [
     CheckFeatureAccessHandler,
     GrantFeatureHandler,

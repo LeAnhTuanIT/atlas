@@ -27,12 +27,12 @@ export class SystemMerchantController {
   @Get()
   async getMerchants(
     @Query('search') search?: string,
-    @Query('page') page = 1,
+    @Query('cursor') cursor?: string,
     @Query('limit') limit = 10,
   ) {
     return this.getMerchantsUseCase.execute({
       search,
-      page: +page,
+      cursor,
       limit: +limit,
     });
   }

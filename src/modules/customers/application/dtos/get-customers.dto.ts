@@ -4,10 +4,8 @@ import { CustomerStatus } from '../../domain/models/customer.model';
 
 export class GetCustomersDto {
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  page: number = 1;
+  @IsString()
+  cursor?: string; // uuid của khách hàng cuối cùng ở trang trước
 
   @IsOptional()
   @Type(() => Number)
