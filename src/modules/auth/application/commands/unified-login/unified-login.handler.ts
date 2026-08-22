@@ -126,7 +126,7 @@ export class UnifiedLoginHandler implements ICommandHandler<
         invalidCredentials,
       );
       const merchant = await this.merchantRepository.findOne({
-        where: { id: merchantUser.merchantId },
+        where: { uuid: merchantUser.merchantId },
       });
       const tokens = await this.tokenGenerator.generateTokens({
         sub: merchantUser.uuid,
@@ -156,6 +156,8 @@ export class UnifiedLoginHandler implements ICommandHandler<
     }
 
     // 3. Thử tài khoản Customer (theo SĐT hoặc Email, trong phạm vi merchant)
+    // TODO: merchantId giờ là uuid (merchants.uuid), '1' không còn là giá trị hợp lệ.
+    // Cần thay bằng uuid của merchant mặc định thực tế nếu vẫn muốn giữ fallback này.
     const customerMerchantId = merchantId || '1';
     let customer: Customer | null = null;
 
@@ -190,13 +192,13 @@ export class UnifiedLoginHandler implements ICommandHandler<
     );
 
     const merchant = await this.merchantRepository.findOne({
-      where: { id: customer.merchantId },
+      where: { uuid: customer.merchantId },
     });
     const tokens = await this.tokenGenerator.generateTokens({
       sub: customer.id.getValue(),
       phoneOrEmail: identifier,
       scope: 'CUSTOMER',
-      merchantId: customer.merchantId,
+      merchantId: merchant?.uuid,
     });
 
     return {

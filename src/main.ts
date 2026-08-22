@@ -26,25 +26,40 @@ async function bootstrap() {
     'CORS_ORIGIN',
     'http://localhost:3000',
   );
-
   // 2. Middlewares cơ sở (Bảo mật, nén, parse cookie)
   app.use(helmet());
   app.use(compression());
   app.use(cookieParser());
 
-  const allowedOrigins =
-    corsOrigin === '*'
-      ? true
-      : corsOrigin.split(',').map((origin) => origin.trim());
+  // Xử lý Dynamic Origin an toàn khi dùng credentials: true
+  const configuredOrigins = (corsOrigin || '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
 
   app.enableCors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin) {
+        return callback(null, true);
+      }
+      if (
+        corsOrigin === '*' ||
+        configuredOrigins.includes(origin) ||
+        origin.includes('localhost') ||
+        origin.includes('127.0.0.1')
+      ) {
+        return callback(null, origin);
+      }
+
+      return callback(new Error(`CORS blocked for origin: ${origin}`), false);
+    },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
       'Content-Type',
       'Authorization',
       'X-Requested-With',
       'x-correlation-id',
+      'x-merchant-id', // Bổ sung để không bị chặn header merchant
     ],
     credentials: true,
   });

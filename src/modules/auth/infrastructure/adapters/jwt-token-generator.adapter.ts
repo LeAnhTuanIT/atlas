@@ -1,61 +1,81 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+// src/modules/auth/infrastructure/adapters/jwt-token-generator.adapter.ts
+import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import {
-  AuthTokens,
+import { ConfigService } from '@nestjs/config';
+import type {
   ITokenGeneratorPort,
   TokenPayload,
-} from '@/modules/auth/application/ports/token-generator.port';
+  AuthTokens,
+} from '../../application/ports/token-generator.port';
 
 @Injectable()
 export class JwtTokenGeneratorAdapter implements ITokenGeneratorPort {
+  private readonly logger = new Logger(JwtTokenGeneratorAdapter.name);
+
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
-  verifyRefreshToken<T extends object = TokenPayload>(
-    _token: string,
-  ): Promise<T> {
-    throw new Error('Method not implemented.');
-  }
 
   async generateTokens(payload: TokenPayload): Promise<AuthTokens> {
-    const ttlSeconds = this.configService.get<number>(
-      'JWT_ACCESS_TTL_SECONDS',
-      900,
-    );
-    const secret =
-      this.configService.get<string>('JWT_ACCESS_SECRET') ||
-      'default-secret-key';
-    const refreshTtlSeconds = this.configService.get<number>(
-      'JWT_REFRESH_TTL_SECONDS',
-      30 * 24 * 60 * 60,
-    );
+    const accessSecret =
+      this.configService.get<string>('JWT_ACCESS_SECRET') || 'access_secret';
     const refreshSecret =
-      this.configService.get<string>('JWT_REFRESH_SECRET') ||
-      'default-refresh-secret-key';
+      this.configService.get<string>('JWT_REFRESH_SECRET') || 'refresh_secret';
+
+    const accessExpiresIn =
+      this.configService.get<string>('JWT_ACCESS_EXPIRES_IN') || '15m';
+    const refreshExpiresIn =
+      this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') || '7d';
+
+    const expiresInSeconds = 15 * 60;
 
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(payload, { secret, expiresIn: ttlSeconds }),
-      this.jwtService.signAsync(payload, {
-        secret: refreshSecret,
-        expiresIn: refreshTtlSeconds,
-      }),
+      this.jwtService.signAsync(
+        {
+          sub: payload.sub || payload.userId,
+          scope: payload.scope,
+          role: payload.role,
+          merchantId: payload.merchantId,
+        },
+        {
+          secret: accessSecret,
+          expiresIn: accessExpiresIn as any,
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          sub: payload.sub || payload.userId,
+          scope: payload.scope,
+        },
+        {
+          secret: refreshSecret,
+          expiresIn: refreshExpiresIn as any,
+        },
+      ),
     ]);
 
     return {
       accessToken,
       refreshToken,
-      expiresIn: ttlSeconds,
+      expiresIn: expiresInSeconds,
     };
   }
 
-  async verifyToken<T extends object = TokenPayload>(
-    token: string,
-  ): Promise<T> {
-    const secret =
-      this.configService.get<string>('JWT_ACCESS_SECRET') ||
-      'default-secret-key';
-    return this.jwtService.verifyAsync<T>(token, { secret });
+  async verifyRefreshToken(refreshToken: string): Promise<any> {
+    try {
+      const refreshSecret =
+        this.configService.get<string>('JWT_REFRESH_SECRET') ||
+        'refresh_secret';
+
+      return await this.jwtService.verifyAsync(refreshToken, {
+        secret: refreshSecret,
+      });
+    } catch (err: any) {
+      this.logger.warn(`Verify JWT thất bại: ${err?.message}`);
+      throw new UnauthorizedException(
+        'Refresh Token không hợp lệ hoặc đã hết hạn.',
+      );
+    }
   }
 }

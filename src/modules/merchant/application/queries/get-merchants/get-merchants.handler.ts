@@ -10,11 +10,12 @@ export class GetMerchantsUseCase {
     private readonly merchantRepo: IMerchantRepository,
   ) {}
 
-  async execute(params: { search?: string; page?: number; limit?: number }) {
-    const { items, total } = await this.merchantRepo.findAll({
+  async execute(params: { search?: string; cursor?: string; limit?: number }) {
+    const limit = params.limit || 10;
+    const { items, hasNextPage, nextCursor } = await this.merchantRepo.findAll({
       search: params.search,
-      page: params.page || 1,
-      limit: params.limit || 10,
+      cursor: params.cursor,
+      limit,
     });
 
     return {
@@ -39,9 +40,9 @@ export class GetMerchantsUseCase {
           createdAt: m.createdAt,
         };
       }),
-      total,
-      page: params.page || 1,
-      limit: params.limit || 10,
+      limit,
+      hasNextPage,
+      nextCursor,
     };
   }
 }

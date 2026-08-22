@@ -1,9 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
 import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
-import { SystemJwtPayload } from '../auth-payloads.interface';
 import { COOKIE_KEYS } from '../../utils/cookie.util';
 
 @Injectable()
@@ -24,10 +23,15 @@ export class SystemJwtStrategy extends PassportStrategy(
     });
   }
 
-  validate(payload: SystemJwtPayload) {
-    if (payload.scope !== 'SYSTEM') {
-      throw new UnauthorizedException('Token không hợp lệ cho System Admin.');
-    }
-    return payload;
+  validate(payload: any) {
+    const uuid = payload.merchantUuid || payload.merchantId || payload.sub;
+
+    return {
+      userId: payload.sub,
+      merchantId: uuid,
+      merchantUuid: uuid,
+      role: payload.role,
+      scope: payload.scope,
+    };
   }
 }

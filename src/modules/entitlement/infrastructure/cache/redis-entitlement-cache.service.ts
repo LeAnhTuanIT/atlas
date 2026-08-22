@@ -13,26 +13,26 @@ export class RedisEntitlementCacheService implements IEntitlementCacheService {
     private readonly redis: Redis,
   ) {}
 
-  private getKey(shopId: string): string {
-    return `entitlements:shop:${shopId}`;
+  private getKey(merchantId: string): string {
+    return `entitlements:merchant:${merchantId}`;
   }
 
   async getFeatureExpiration(
-    shopId: string,
+    merchantId: string,
     featureCode: string,
   ): Promise<number | null> {
     const score = await this.redis.zscore(
-      this.getKey(shopId),
+      this.getKey(merchantId),
       featureCode.toUpperCase(),
     );
     return score !== null ? Number(score) : null;
   }
 
-  async setShopActiveFeatures(
-    shopId: string,
+  async setMerchantActiveFeatures(
+    merchantId: string,
     entitlements: ShopEntitlement[],
   ): Promise<void> {
-    const key = this.getKey(shopId);
+    const key = this.getKey(merchantId);
     await this.redis.del(key);
 
     if (entitlements.length === 0) return;
@@ -49,7 +49,7 @@ export class RedisEntitlementCacheService implements IEntitlementCacheService {
     await this.redis.expire(key, 86400 * 2);
   }
 
-  async invalidateShop(shopId: string): Promise<void> {
-    await this.redis.del(this.getKey(shopId));
+  async invalidateMerchant(merchantId: string): Promise<void> {
+    await this.redis.del(this.getKey(merchantId));
   }
 }

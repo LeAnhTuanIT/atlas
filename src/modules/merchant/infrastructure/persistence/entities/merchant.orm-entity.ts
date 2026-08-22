@@ -1,27 +1,15 @@
 // src/modules/merchant/infrastructure/persistence/entities/merchant.orm-entity.ts
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-  OneToMany,
-} from 'typeorm';
+import { Entity, Column, OneToMany, OneToOne } from 'typeorm';
+import { BaseOrmEntity } from '@/shared/infrastructure/persistence/base.orm-entity';
 import { MerchantStatus } from '@/modules/merchant/domain/models/merchant.aggregate';
 import { MerchantUserOrmEntity } from './merchant-user.orm-entity';
 import { CustomerOrmEntity } from '@/modules/customers/infrastructure/persistence/entities/customer.orm-entity';
+import { WalletOrmEntity } from '@/modules/wallet/infrastructure/persistence/typeorm/entities/wallet.orm-entity';
 
 export { MerchantStatus };
 
 @Entity({ name: 'merchants' })
-export class MerchantOrmEntity {
-  @PrimaryGeneratedColumn({ type: 'bigint' })
-  id: string;
-
-  @Column({ type: 'uuid', unique: true })
-  uuid: string;
-
+export class MerchantOrmEntity extends BaseOrmEntity {
   @Column({ type: 'varchar', length: 50, unique: true })
   code: string;
 
@@ -44,12 +32,7 @@ export class MerchantOrmEntity {
   @OneToMany(() => CustomerOrmEntity, (customer) => customer.merchant)
   customers: CustomerOrmEntity[];
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
-
-  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
-  deletedAt?: Date;
+  // Chiều nghịch của quan hệ 1-1 — inverse side, không sở hữu cột FK.
+  @OneToOne(() => WalletOrmEntity, (wallet) => wallet.merchant)
+  wallet?: WalletOrmEntity;
 }

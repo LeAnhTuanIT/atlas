@@ -73,15 +73,23 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async refresh(
     @Req() req: Request,
+    @Body()
+    body: { refreshToken?: string; scope?: 'SYSTEM' | 'MERCHANT' | 'CUSTOMER' },
     @Res({ passthrough: true }) res: Response,
   ) {
+    // 1. Quét tất cả các key cookie theo scope hệ thống đã lưu
     const refreshToken =
-      req.cookies[COOKIE_KEYS.SYSTEM_REFRESH] ||
-      req.cookies[COOKIE_KEYS.MERCHANT_REFRESH] ||
-      req.cookies[COOKIE_KEYS.CUSTOMER_REFRESH];
+      req.cookies?.[COOKIE_KEYS.MERCHANT_REFRESH] ||
+      req.cookies?.[COOKIE_KEYS.SYSTEM_REFRESH] ||
+      req.cookies?.[COOKIE_KEYS.CUSTOMER_REFRESH] ||
+      req.cookies?.refreshToken ||
+      req.cookies?.refresh_token ||
+      body?.refreshToken;
 
     if (!refreshToken) {
-      throw new UnauthorizedException('Refresh token is missing.');
+      throw new UnauthorizedException(
+        'Không tìm thấy Refresh Token trong phiên đăng nhập.',
+      );
     }
 
     const result = await this.commandBus.execute<
@@ -89,14 +97,17 @@ export class AuthController {
       UnifiedLoginResult
     >(new RefreshTokenCommand(refreshToken));
 
+    // 2. Cập nhật lại Cookies mới vào Response
     const cookieKeys = SCOPE_COOKIE_KEYS[result.scope];
-    CookieUtil.setAuthCookies(
-      res,
-      cookieKeys.access,
-      cookieKeys.refresh,
-      result.tokens.accessToken,
-      result.tokens.refreshToken ?? '',
-    );
+    if (cookieKeys && result.tokens) {
+      CookieUtil.setAuthCookies(
+        res,
+        cookieKeys.access,
+        cookieKeys.refresh,
+        result.tokens.accessToken,
+        result.tokens.refreshToken ?? '',
+      );
+    }
 
     return {
       scope: result.scope,
