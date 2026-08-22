@@ -76,7 +76,7 @@ export class CreateMerchantUseCase {
       const passwordHash = await this.hasher.hash(targetPassword);
       const merchantUser = manager.create(MerchantUserOrmEntity, {
         uuid: crypto.randomUUID(),
-        merchantId: savedMerchant.id,
+        merchantId: savedMerchant.uuid,
         email: targetEmail,
         fullName: targetFullName,
         role: MerchantUserRole.OWNER,

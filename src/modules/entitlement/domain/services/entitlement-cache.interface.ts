@@ -3,13 +3,13 @@ import { ShopEntitlement } from '../models/shop-entitlement.entity';
 
 export interface IEntitlementCacheService {
   getFeatureExpiration(
-    shopId: string,
+    merchantId: string,
     featureCode: string,
   ): Promise<number | null>;
-  setShopActiveFeatures(
-    shopId: string,
+  setMerchantActiveFeatures(
+    merchantId: string,
     entitlements: ShopEntitlement[],
   ): Promise<void>;
-  invalidateShop(shopId: string): Promise<void>;
+  invalidateMerchant(merchantId: string): Promise<void>;
 }
 export const ENTITLEMENT_CACHE_SERVICE = Symbol('IEntitlementCacheService');

@@ -5,7 +5,7 @@ import { EntitlementPeriod } from '../value-objects/entitlement-period.vo';
 export class ShopEntitlement {
   constructor(
     private readonly id: string,
-    private readonly shopId: string,
+    private readonly merchantId: string,
     private readonly featureCode: FeatureCode,
     private period: EntitlementPeriod,
     private isActive: boolean,
@@ -13,7 +13,7 @@ export class ShopEntitlement {
 
   static create(
     id: string,
-    shopId: string,
+    merchantId: string,
     featureCode: string,
     durationMonths: number,
   ): ShopEntitlement {
@@ -23,7 +23,7 @@ export class ShopEntitlement {
 
     return new ShopEntitlement(
       id,
-      shopId,
+      merchantId,
       new FeatureCode(featureCode),
       new EntitlementPeriod(now, expiresAt),
       true,
@@ -47,8 +47,8 @@ export class ShopEntitlement {
   getId(): string {
     return this.id;
   }
-  getShopId(): string {
-    return this.shopId;
+  getMerchantId(): string {
+    return this.merchantId;
   }
   getFeatureCode(): FeatureCode {
     return this.featureCode;

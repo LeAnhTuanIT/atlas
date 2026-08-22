@@ -7,7 +7,7 @@ import { Email } from '../../../domain/value-objects/email.vo';
 export class CustomerMapper {
   static toDomain(entity: CustomerOrmEntity): Customer {
     return Customer.reconstitute({
-      id: new CustomerId(entity.id),
+      id: new CustomerId(entity.uuid),
       merchantId: entity.merchantId,
       fullName: entity.fullName,
       phone: entity.phone ? new PhoneNumber(entity.phone) : undefined,
@@ -22,7 +22,7 @@ export class CustomerMapper {
 
   static toPersistence(domain: Customer): CustomerOrmEntity {
     const entity = new CustomerOrmEntity();
-    entity.id = domain.id.getValue();
+    entity.uuid = domain.id.getValue();
     entity.merchantId = domain.merchantId;
     entity.fullName = domain.fullName;
     entity.phone = domain.phone ? domain.phone.getValue() : undefined;

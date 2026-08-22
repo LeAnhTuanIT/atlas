@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from 'async_hooks';
 
 export interface MerchantContextData {
   userId: string; // merchant_user.uuid hoặc system_user.uuid
-  merchantId: string; // merchant.id (BigInt dạng string)
+  merchantId: string; // merchant.uuid — không dùng merchant.id (bigint nội bộ)
   role?: string; // 'OWNER' | 'ADMIN' | 'STAFF'
   permissions?: string[];
   isSuperAdmin?: boolean;

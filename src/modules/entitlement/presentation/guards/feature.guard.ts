@@ -25,14 +25,15 @@ export class FeatureGuard implements CanActivate {
     if (!requiredFeature) return true;
 
     const request = context.switchToHttp().getRequest();
-    const shopId = request.user?.shopId || request.headers['x-shop-id'];
+    const merchantId =
+      request.user?.merchantId || request.headers['x-merchant-id'];
 
-    if (!shopId) {
-      throw new ForbiddenException('Shop identity context is missing.');
+    if (!merchantId) {
+      throw new ForbiddenException('Merchant identity context is missing.');
     }
 
     const hasAccess = await this.checkAccessHandler.execute(
-      shopId,
+      merchantId,
       requiredFeature,
     );
     if (!hasAccess) {

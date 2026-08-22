@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 
 import {
   type CustomerFilterParams,
+  type CustomerPaginatedResult,
   type ICustomerRepository,
 } from '../../../domain/repositories/customer.repository.interface';
 import { Customer } from '../../../domain/models/customer.model';
@@ -12,6 +13,7 @@ import { PhoneNumber } from '../../../domain/value-objects/phone.vo';
 import { Email } from '../../../domain/value-objects/email.vo';
 import { CustomerOrmEntity } from '../entities/customer.orm-entity';
 import { CustomerMapper } from '../mappers/customer.mapper';
+import { paginateByUuidCursor } from '@/shared/infrastructure/persistence/cursor-pagination.util';
 
 @Injectable()
 export class CustomerTypeOrmRepository implements ICustomerRepository {
@@ -32,7 +34,7 @@ export class CustomerTypeOrmRepository implements ICustomerRepository {
 
   async findById(merchantId: string, id: CustomerId): Promise<Customer | null> {
     const entity = await this.repo.findOne({
-      where: { id: id.getValue(), merchantId },
+      where: { uuid: id.getValue(), merchantId },
     });
     return entity ? CustomerMapper.toDomain(entity) : null;
   }
@@ -60,10 +62,7 @@ export class CustomerTypeOrmRepository implements ICustomerRepository {
   async findPaginated(
     merchantId: string,
     params: CustomerFilterParams,
-  ): Promise<{ data: Customer[]; total: number }> {
-    const page = params.page || 1;
-    const limit = params.limit || 20;
-
+  ): Promise<CustomerPaginatedResult> {
     const qb = this.repo
       .createQueryBuilder('c')
       .where('c.merchantId = :merchantId', { merchantId });
@@ -79,15 +78,16 @@ export class CustomerTypeOrmRepository implements ICustomerRepository {
       );
     }
 
-    qb.orderBy('c.createdAt', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit);
-
-    const [entities, total] = await qb.getManyAndCount();
+    const { items, meta } = await paginateByUuidCursor(qb, 'c', {
+      cursor: params.cursor,
+      limit: params.limit,
+      order: 'DESC',
+    });
 
     return {
-      data: entities.map((e) => CustomerMapper.toDomain(e)),
-      total,
+      data: items.map((e) => CustomerMapper.toDomain(e)),
+      hasNextPage: meta.hasNextPage,
+      nextCursor: meta.nextCursor,
     };
   }
 
@@ -100,6 +100,6 @@ export class CustomerTypeOrmRepository implements ICustomerRepository {
   }
 
   async delete(merchantId: string, id: CustomerId): Promise<void> {
-    await this.repo.delete({ id: id.getValue(), merchantId });
+    await this.repo.delete({ uuid: id.getValue(), merchantId });
   }
 }

@@ -1,14 +1,6 @@
-import {
-  Entity,
-  Column,
-  Index,
-  ManyToOne,
-  JoinColumn,
-  OneToMany,
-} from 'typeorm';
+import { Entity, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseOrmEntity } from '@/shared/infrastructure/persistence/base.orm-entity';
 import { MerchantOrmEntity } from './merchant.orm-entity';
-import { CustomerOrmEntity } from '@/modules/customers/infrastructure/persistence/entities/customer.orm-entity';
 
 export enum MerchantUserRole {
   OWNER = 'OWNER',
@@ -20,13 +12,13 @@ export enum MerchantUserRole {
 @Index(['merchantId', 'email'], { unique: true })
 export class MerchantUserOrmEntity extends BaseOrmEntity {
   @Index()
-  @Column({ name: 'merchant_id', type: 'bigint', nullable: false })
+  @Column({ name: 'merchant_id', type: 'uuid', nullable: false })
   merchantId: string;
 
   @ManyToOne(() => MerchantOrmEntity, (merchant) => merchant.merchantUsers, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'merchant_id' })
+  @JoinColumn({ name: 'merchant_id', referencedColumnName: 'uuid' })
   merchant: MerchantOrmEntity;
 
   @Column({ type: 'varchar', length: 255 })
@@ -55,12 +47,4 @@ export class MerchantUserOrmEntity extends BaseOrmEntity {
 
   @Column({ name: 'last_login_at', type: 'timestamptz', nullable: true })
   lastLoginAt?: Date;
-
-  // Thêm quan hệ merchantUsers
-  @OneToMany(() => MerchantUserOrmEntity, (user) => user.merchant)
-  merchantUsers: MerchantUserOrmEntity[];
-
-  // Thêm quan hệ customers
-  @OneToMany(() => CustomerOrmEntity, (customer) => customer.merchant)
-  customers: CustomerOrmEntity[];
 }

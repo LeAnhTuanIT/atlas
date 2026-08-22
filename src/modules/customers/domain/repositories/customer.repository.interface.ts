@@ -6,10 +6,16 @@ import { Email } from '../value-objects/email.vo';
 export const CUSTOMER_REPOSITORY = Symbol('CUSTOMER_REPOSITORY');
 
 export interface CustomerFilterParams {
-  page?: number;
+  cursor?: string;
   limit?: number;
   search?: string;
   status?: string;
+}
+
+export interface CustomerPaginatedResult {
+  data: Customer[];
+  hasNextPage: boolean;
+  nextCursor: string | null;
 }
 
 export interface ICustomerRepository {
@@ -21,7 +27,7 @@ export interface ICustomerRepository {
   findPaginated(
     merchantId: string,
     params: CustomerFilterParams,
-  ): Promise<{ data: Customer[]; total: number }>;
+  ): Promise<CustomerPaginatedResult>;
   findAll(merchantId: string): Promise<Customer[]>;
   delete(merchantId: string, id: CustomerId): Promise<void>;
 }

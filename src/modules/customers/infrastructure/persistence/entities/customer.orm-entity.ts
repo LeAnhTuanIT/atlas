@@ -21,13 +21,13 @@ export enum CustomerStatus {
 @Index(['merchantId', 'email'], { unique: true })
 export class CustomerOrmEntity extends BaseOrmEntity {
   @Index()
-  @Column({ name: 'merchant_id', type: 'bigint', nullable: false })
+  @Column({ name: 'merchant_id', type: 'uuid', nullable: false })
   merchantId: string;
 
   @ManyToOne(() => MerchantOrmEntity, (merchant) => merchant.customers, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'merchant_id' })
+  @JoinColumn({ name: 'merchant_id', referencedColumnName: 'uuid' })
   merchant: MerchantOrmEntity;
 
   @Column({ type: 'varchar', length: 20, nullable: true })

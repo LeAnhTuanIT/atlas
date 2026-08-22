@@ -6,6 +6,7 @@ import { IMerchantRepository } from '@/modules/merchant/domain/repositories/merc
 import { MerchantAggregate } from '@/modules/merchant/domain/models/merchant.aggregate';
 import { MerchantOrmEntity } from '../entities/merchant.orm-entity';
 import { MerchantMapper } from '../mappers/merchant.mapper';
+import { paginateByUuidCursor } from '@/shared/infrastructure/persistence/cursor-pagination.util';
 
 @Injectable()
 export class TypeOrmMerchantRepository implements IMerchantRepository {
@@ -42,10 +43,14 @@ export class TypeOrmMerchantRepository implements IMerchantRepository {
 
   async findAll(params: {
     search?: string;
-    page: number;
+    cursor?: string;
     limit: number;
-  }): Promise<{ items: any[]; total: number }> {
-    const { search = '', page = 1, limit = 10 } = params;
+  }): Promise<{
+    items: any[];
+    hasNextPage: boolean;
+    nextCursor: string | null;
+  }> {
+    const { search = '', cursor, limit = 10 } = params;
     const qb = this.repo
       .createQueryBuilder('m')
       .leftJoinAndSelect('m.merchantUsers', 'mu')
@@ -60,15 +65,16 @@ export class TypeOrmMerchantRepository implements IMerchantRepository {
       );
     }
 
-    qb.skip((page - 1) * limit)
-      .take(limit)
-      .orderBy('m.createdAt', 'DESC');
-
-    const [records, total] = await qb.getManyAndCount();
+    const { items, meta } = await paginateByUuidCursor(qb, 'm', {
+      cursor,
+      limit,
+      order: 'DESC',
+    });
 
     return {
-      items: records,
-      total,
+      items,
+      hasNextPage: meta.hasNextPage,
+      nextCursor: meta.nextCursor,
     };
   }
 
