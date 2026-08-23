@@ -6,19 +6,14 @@ import { IntegrationProviderEnum } from '@/modules/integrations/domain/value-obj
 
 describe('SendZaloOaMessageHandler', () => {
   const connectionRepo = { findByMerchantAndProvider: jest.fn() } as any;
-  const messageRepo = { save: jest.fn() } as any;
   const gatewayFactory = {
     getMessagingGateway: jest.fn(),
   } as any;
-  const handler = new SendZaloOaMessageHandler(
-    connectionRepo,
-    messageRepo,
-    gatewayFactory,
-  );
+  const handler = new SendZaloOaMessageHandler(connectionRepo, gatewayFactory);
 
   beforeEach(() => jest.clearAllMocks());
 
-  it('gửi tin thành công và lưu message OUT', async () => {
+  it('gửi tin thành công và trả về externalMessageId', async () => {
     const connection = IntegrationConnection.create(
       'merchant-1',
       IntegrationProviderEnum.ZALO_OA,
@@ -46,10 +41,6 @@ describe('SendZaloOaMessageHandler', () => {
       content: 'Xin chào',
       type: undefined,
     });
-    expect(messageRepo.save).toHaveBeenCalledTimes(1);
-    const savedMessage = messageRepo.save.mock.calls[0][0];
-    expect(savedMessage.getExternalMessageId()).toBe('msg-out-1');
-    expect(savedMessage.getZaloUserId()).toBe('zalo-user-1');
   });
 
   it('throw NotFoundException khi merchant chưa liên kết OA', async () => {
