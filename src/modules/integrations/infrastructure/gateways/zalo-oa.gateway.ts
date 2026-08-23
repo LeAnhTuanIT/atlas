@@ -21,11 +21,17 @@ import {
   INTEGRATION_CONNECTION_REPOSITORY,
   type IIntegrationConnectionRepository,
 } from '../../domain/repositories/integration-connection.repository.interface';
+import type {
+  ZbsTemplate,
+  ZbsTemplatePublishResult,
+} from '../../domain/models/zbs-template.entity';
 
 const ZALO_OAUTH_TOKEN_URL = 'https://oauth.zaloapp.com/v4/oa/access_token';
 const ZALO_OAUTH_PERMISSION_URL = 'https://oauth.zaloapp.com/v4/oa/permission';
 const ZALO_SEND_MESSAGE_URL = 'https://openapi.zalo.me/v3.0/oa/message/cs';
 const ZALO_LIST_TEMPLATES_URL = 'https://business.openapi.zalo.me/template/all';
+const ZALO_CREATE_TEMPLATE_URL = 'https://business.openapi.zalo.me/template/create';
+const ZALO_EDIT_TEMPLATE_URL = 'https://business.openapi.zalo.me/template/edit';
 
 export interface ZbsTemplateApiItem {
   templateId: string;
@@ -219,6 +225,72 @@ export class ZaloOaGateway implements IMessagingGateway, IOAuthConnectable {
       );
       throw new BadGatewayException(
         'Không thể lấy danh sách template ZNS từ Zalo.',
+      );
+    }
+  }
+
+  /**
+   * Tạo mới (chưa có templateId) hoặc chỉnh sửa (đã có templateId) template
+   * trên Zalo. Response schema chính xác của Zalo cho 2 API này chưa được xác
+   * nhận qua tài liệu — parse phòng thủ theo pattern chung của các API Zalo
+   * khác (`{ data: { template_id, status } }`), fallback `status` về
+   * `PENDING_REVIEW` nếu Zalo không trả field này.
+   */
+  async publishTemplate(
+    connectionId: string,
+    template: ZbsTemplate,
+  ): Promise<ZbsTemplatePublishResult> {
+    const accessToken = await this.getValidAccessToken(connectionId);
+    const templateId = template.getTemplateId();
+
+    const body: Record<string, any> = {
+      template_name: template.getTemplateName(),
+      template_type: template.getTemplateType(),
+      tag: template.getTag(),
+      layout: template.getLayout(),
+      params: template.getParams(),
+    };
+    if (template.getNote() !== undefined) body.note = template.getNote();
+    if (template.getTrackingId() !== undefined) {
+      body.tracking_id = template.getTrackingId();
+    }
+
+    const url = templateId ? ZALO_EDIT_TEMPLATE_URL : ZALO_CREATE_TEMPLATE_URL;
+    if (templateId) {
+      body.template_id = templateId;
+    }
+
+    try {
+      const response = await axios.post(url, body, {
+        headers: {
+          'Content-Type': 'application/json',
+          access_token: accessToken,
+        },
+      });
+
+      const data = response.data?.data;
+      const resultTemplateId = data?.template_id ?? data?.templateId;
+      if (!resultTemplateId) {
+        this.logger.error(
+          `Zalo ZNS publish template error: ${JSON.stringify(response.data)}`,
+        );
+        throw new BadGatewayException(
+          `Zalo từ chối tạo/chỉnh sửa template: ${response.data?.message || 'unknown error'}`,
+        );
+      }
+
+      return {
+        templateId: String(resultTemplateId),
+        status: String(data?.status || 'PENDING_REVIEW'),
+      };
+    } catch (error: any) {
+      if (error instanceof BadGatewayException) throw error;
+      const errorMsg = error?.response?.data || error?.message;
+      this.logger.error(
+        `Lỗi gọi Zalo ZNS publish template API: ${JSON.stringify(errorMsg)}`,
+      );
+      throw new BadGatewayException(
+        'Không thể tạo/chỉnh sửa template ZNS trên Zalo.',
       );
     }
   }

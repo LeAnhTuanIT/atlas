@@ -4,6 +4,7 @@ import { BadGatewayException, UnauthorizedException } from '@nestjs/common';
 import { ZaloOaGateway } from './zalo-oa.gateway';
 import { IntegrationConnection } from '@/modules/integrations/domain/models/integration-connection.aggregate';
 import { IntegrationProviderEnum } from '@/modules/integrations/domain/value-objects/integration-provider.vo';
+import { ZbsTemplate } from '@/modules/integrations/domain/models/zbs-template.entity';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -228,5 +229,116 @@ describe('ZaloOaGateway', () => {
     await expect(gateway.listTemplates('x')).rejects.toThrow(
       UnauthorizedException,
     );
+  });
+
+  describe('publishTemplate()', () => {
+    const connection = IntegrationConnection.create(
+      'merchant-1',
+      IntegrationProviderEnum.ZALO_OA,
+      'oa-1',
+      {
+        accessToken: 'acc-valid',
+        refreshToken: 'ref-1',
+        expiresAt: new Date(Date.now() + 3600_000),
+      },
+    );
+
+    const layout = { body: { components: [{ TITLE: { value: 'Xác nhận đơn hàng' } }] } };
+    const params = [{ type: '1', name: 'name', sample_value: 'A' }];
+
+    it('gọi template/create khi template chưa có templateId', async () => {
+      connectionRepo.findById.mockResolvedValueOnce(connection);
+      mockedAxios.post.mockResolvedValueOnce({
+        data: { data: { template_id: 'zns-tpl-99', status: 'PENDING_REVIEW' } },
+      });
+
+      const template = ZbsTemplate.createDraft({
+        connectionId: connection.getUuid(),
+        templateName: 'Xác nhận đơn hàng',
+        templateType: '1',
+        tag: '1',
+        layout,
+        params,
+        note: 'ghi chú',
+        trackingId: 'track-1',
+      });
+
+      const result = await gateway.publishTemplate(
+        connection.getUuid(),
+        template,
+      );
+
+      expect(result).toEqual({
+        templateId: 'zns-tpl-99',
+        status: 'PENDING_REVIEW',
+      });
+      expect(mockedAxios.post).toHaveBeenCalledWith(
+        'https://business.openapi.zalo.me/template/create',
+        expect.objectContaining({
+          template_name: 'Xác nhận đơn hàng',
+          template_type: '1',
+          tag: '1',
+          layout,
+          params,
+          note: 'ghi chú',
+          tracking_id: 'track-1',
+        }),
+        expect.objectContaining({
+          headers: expect.objectContaining({ access_token: 'acc-valid' }),
+        }),
+      );
+      const sentBody = mockedAxios.post.mock.calls[0][1] as Record<string, any>;
+      expect(sentBody.template_id).toBeUndefined();
+    });
+
+    it('gọi template/edit kèm template_id khi template đã có templateId', async () => {
+      connectionRepo.findById.mockResolvedValueOnce(connection);
+      mockedAxios.post.mockResolvedValueOnce({
+        data: { data: { template_id: 'zns-tpl-99', status: 'PENDING_REVIEW' } },
+      });
+
+      const template = ZbsTemplate.fromSync({
+        connectionId: connection.getUuid(),
+        templateId: 'zns-tpl-99',
+        templateName: 'Xác nhận đơn hàng',
+        status: 'ENABLE',
+        syncedAt: new Date(),
+      });
+
+      const result = await gateway.publishTemplate(
+        connection.getUuid(),
+        template,
+      );
+
+      expect(result).toEqual({
+        templateId: 'zns-tpl-99',
+        status: 'PENDING_REVIEW',
+      });
+      expect(mockedAxios.post).toHaveBeenCalledWith(
+        'https://business.openapi.zalo.me/template/edit',
+        expect.objectContaining({ template_id: 'zns-tpl-99' }),
+        expect.anything(),
+      );
+    });
+
+    it('throw BadGatewayException khi Zalo không trả về template_id', async () => {
+      connectionRepo.findById.mockResolvedValueOnce(connection);
+      mockedAxios.post.mockResolvedValueOnce({
+        data: { error: 1, message: 'template_name đã tồn tại' },
+      });
+
+      const template = ZbsTemplate.createDraft({
+        connectionId: connection.getUuid(),
+        templateName: 'Xác nhận đơn hàng',
+        templateType: '1',
+        tag: '1',
+        layout,
+        params,
+      });
+
+      await expect(
+        gateway.publishTemplate(connection.getUuid(), template),
+      ).rejects.toThrow(BadGatewayException);
+    });
   });
 });
