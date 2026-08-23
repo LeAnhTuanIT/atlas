@@ -170,8 +170,16 @@ describe('ZaloOaGateway', () => {
     mockedAxios.get.mockResolvedValueOnce({
       data: {
         data: [
-          { templateId: 'tpl-1', templateName: 'Xác nhận đơn', status: 'ENABLE' },
-          { templateId: 'tpl-2', templateName: 'Giao hàng', status: 'PENDING_REVIEW' },
+          {
+            templateId: 'tpl-1',
+            templateName: 'Xác nhận đơn',
+            status: 'ENABLE',
+          },
+          {
+            templateId: 'tpl-2',
+            templateName: 'Giao hàng',
+            status: 'PENDING_REVIEW',
+          },
         ],
       },
     });
@@ -180,7 +188,11 @@ describe('ZaloOaGateway', () => {
 
     expect(result).toEqual([
       { templateId: 'tpl-1', templateName: 'Xác nhận đơn', status: 'ENABLE' },
-      { templateId: 'tpl-2', templateName: 'Giao hàng', status: 'PENDING_REVIEW' },
+      {
+        templateId: 'tpl-2',
+        templateName: 'Giao hàng',
+        status: 'PENDING_REVIEW',
+      },
     ]);
     expect(mockedAxios.get).toHaveBeenCalledWith(
       'https://business.openapi.zalo.me/template/all',

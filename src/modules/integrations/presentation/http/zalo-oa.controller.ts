@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Query,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Req, UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
 import { MerchantAuthGuard } from '@/shared/infrastructure/auth/guards/auth-guards.guards';
 import { IntegrationProviderEnum } from '../../domain/value-objects/integration-provider.vo';
@@ -16,10 +8,11 @@ import { GetIntegrationStatusHandler } from '../../application/queries/get-integ
 import { GetIntegrationStatusQuery } from '../../application/queries/get-integration-status/get-integration-status.query';
 import { SendZaloOaMessageHandler } from '../../application/commands/send-zalo-oa-message/send-zalo-oa-message.handler';
 import { SendZaloOaMessageCommand } from '../../application/commands/send-zalo-oa-message/send-zalo-oa-message.command';
-import { ListZaloOaMessagesHandler } from '../../application/queries/list-zalo-oa-messages/list-zalo-oa-messages.handler';
-import { ListZaloOaMessagesQuery } from '../../application/queries/list-zalo-oa-messages/list-zalo-oa-messages.query';
+import { SyncZbsTemplatesHandler } from '../../application/commands/sync-zbs-templates/sync-zbs-templates.handler';
+import { SyncZbsTemplatesCommand } from '../../application/commands/sync-zbs-templates/sync-zbs-templates.command';
+import { ListZbsTemplatesHandler } from '../../application/queries/list-zbs-templates/list-zbs-templates.handler';
+import { ListZbsTemplatesQuery } from '../../application/queries/list-zbs-templates/list-zbs-templates.query';
 import { SendZaloOaMessageDto } from '../../application/dtos/send-zalo-oa-message.dto';
-import { ListZaloOaMessagesDto } from '../../application/dtos/list-zalo-oa-messages.dto';
 
 interface AuthenticatedRequest extends Request {
   user: { merchantId: string };
@@ -33,7 +26,8 @@ export class ZaloOaController {
     private readonly zaloOaGateway: ZaloOaGateway,
     private readonly getStatusHandler: GetIntegrationStatusHandler,
     private readonly sendMessageHandler: SendZaloOaMessageHandler,
-    private readonly listMessagesHandler: ListZaloOaMessagesHandler,
+    private readonly syncTemplatesHandler: SyncZbsTemplatesHandler,
+    private readonly listTemplatesHandler: ListZbsTemplatesHandler,
   ) {}
 
   @Get('connect-url')
@@ -52,17 +46,17 @@ export class ZaloOaController {
     );
   }
 
-  @Get('messages')
-  async listMessages(
-    @Req() req: AuthenticatedRequest,
-    @Query() query: ListZaloOaMessagesDto,
-  ) {
-    return this.listMessagesHandler.execute(
-      new ListZaloOaMessagesQuery(
-        req.user.merchantId,
-        query.cursor,
-        query.limit,
-      ),
+  @Get('templates')
+  async listTemplates(@Req() req: AuthenticatedRequest) {
+    return this.listTemplatesHandler.execute(
+      new ListZbsTemplatesQuery(req.user.merchantId),
+    );
+  }
+
+  @Post('templates/sync')
+  async syncTemplates(@Req() req: AuthenticatedRequest) {
+    return this.syncTemplatesHandler.execute(
+      new SyncZbsTemplatesCommand(req.user.merchantId),
     );
   }
 
