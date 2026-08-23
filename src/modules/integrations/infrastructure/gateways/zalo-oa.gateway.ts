@@ -25,6 +25,13 @@ import {
 const ZALO_OAUTH_TOKEN_URL = 'https://oauth.zaloapp.com/v4/oa/access_token';
 const ZALO_OAUTH_PERMISSION_URL = 'https://oauth.zaloapp.com/v4/oa/permission';
 const ZALO_SEND_MESSAGE_URL = 'https://openapi.zalo.me/v3.0/oa/message/cs';
+const ZALO_LIST_TEMPLATES_URL = 'https://business.openapi.zalo.me/template/all';
+
+export interface ZbsTemplateApiItem {
+  templateId: string;
+  templateName: string;
+  status: string;
+}
 
 @Injectable()
 export class ZaloOaGateway implements IMessagingGateway, IOAuthConnectable {
@@ -116,8 +123,8 @@ export class ZaloOaGateway implements IMessagingGateway, IOAuthConnectable {
     }
   }
 
-  async sendMessage(params: SendMessageParams): Promise<SendMessageResult> {
-    const connection = await this.connectionRepo.findById(params.connectionId);
+  private async getValidAccessToken(connectionId: string): Promise<string> {
+    const connection = await this.connectionRepo.findById(connectionId);
     if (!connection) {
       throw new UnauthorizedException(
         'Chưa liên kết Zalo OA hoặc liên kết không tồn tại.',
@@ -143,6 +150,12 @@ export class ZaloOaGateway implements IMessagingGateway, IOAuthConnectable {
         'Liên kết Zalo OA chưa có access token hợp lệ.',
       );
     }
+
+    return accessToken;
+  }
+
+  async sendMessage(params: SendMessageParams): Promise<SendMessageResult> {
+    const accessToken = await this.getValidAccessToken(params.connectionId);
 
     try {
       const response = await axios.post(
@@ -172,6 +185,41 @@ export class ZaloOaGateway implements IMessagingGateway, IOAuthConnectable {
         `Lỗi gọi Zalo OA send message API: ${JSON.stringify(errorMsg)}`,
       );
       throw new BadGatewayException('Không thể gửi tin nhắn qua Zalo OA.');
+    }
+  }
+
+  async listTemplates(connectionId: string): Promise<ZbsTemplateApiItem[]> {
+    const accessToken = await this.getValidAccessToken(connectionId);
+
+    try {
+      const response = await axios.get(ZALO_LIST_TEMPLATES_URL, {
+        headers: { access_token: accessToken },
+      });
+
+      const items = response.data?.data;
+      if (!Array.isArray(items)) {
+        this.logger.error(
+          `Zalo ZNS list templates error: ${JSON.stringify(response.data)}`,
+        );
+        throw new BadGatewayException(
+          `Zalo từ chối lấy danh sách template: ${response.data?.message || 'unknown error'}`,
+        );
+      }
+
+      return items.map((item: any) => ({
+        templateId: String(item.templateId),
+        templateName: String(item.templateName),
+        status: String(item.status),
+      }));
+    } catch (error: any) {
+      if (error instanceof BadGatewayException) throw error;
+      const errorMsg = error?.response?.data || error?.message;
+      this.logger.error(
+        `Lỗi gọi Zalo ZNS list templates API: ${JSON.stringify(errorMsg)}`,
+      );
+      throw new BadGatewayException(
+        'Không thể lấy danh sách template ZNS từ Zalo.',
+      );
     }
   }
 }

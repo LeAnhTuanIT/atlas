@@ -154,4 +154,67 @@ describe('ZaloOaGateway', () => {
       gateway.sendMessage({ connectionId: 'x', to: 'y', content: 'z' }),
     ).rejects.toThrow(UnauthorizedException);
   });
+
+  it('listTemplates() gọi Zalo API và map danh sách template', async () => {
+    const connection = IntegrationConnection.create(
+      'merchant-1',
+      IntegrationProviderEnum.ZALO_OA,
+      'oa-1',
+      {
+        accessToken: 'acc-valid',
+        refreshToken: 'ref-1',
+        expiresAt: new Date(Date.now() + 3600_000),
+      },
+    );
+    connectionRepo.findById.mockResolvedValueOnce(connection);
+    mockedAxios.get.mockResolvedValueOnce({
+      data: {
+        data: [
+          { templateId: 'tpl-1', templateName: 'Xác nhận đơn', status: 'ENABLE' },
+          { templateId: 'tpl-2', templateName: 'Giao hàng', status: 'PENDING_REVIEW' },
+        ],
+      },
+    });
+
+    const result = await gateway.listTemplates(connection.getUuid());
+
+    expect(result).toEqual([
+      { templateId: 'tpl-1', templateName: 'Xác nhận đơn', status: 'ENABLE' },
+      { templateId: 'tpl-2', templateName: 'Giao hàng', status: 'PENDING_REVIEW' },
+    ]);
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      'https://business.openapi.zalo.me/template/all',
+      expect.objectContaining({
+        headers: expect.objectContaining({ access_token: 'acc-valid' }),
+      }),
+    );
+  });
+
+  it('listTemplates() throw BadGatewayException khi Zalo trả lỗi', async () => {
+    const connection = IntegrationConnection.create(
+      'merchant-1',
+      IntegrationProviderEnum.ZALO_OA,
+      'oa-1',
+      {
+        accessToken: 'acc-valid',
+        refreshToken: 'ref-1',
+        expiresAt: new Date(Date.now() + 3600_000),
+      },
+    );
+    connectionRepo.findById.mockResolvedValueOnce(connection);
+    mockedAxios.get.mockResolvedValueOnce({
+      data: { error: 1, message: 'Access token hết hạn' },
+    });
+
+    await expect(gateway.listTemplates(connection.getUuid())).rejects.toThrow(
+      BadGatewayException,
+    );
+  });
+
+  it('listTemplates() throw UnauthorizedException khi connection không tồn tại', async () => {
+    connectionRepo.findById.mockResolvedValueOnce(null);
+    await expect(gateway.listTemplates('x')).rejects.toThrow(
+      UnauthorizedException,
+    );
+  });
 });
