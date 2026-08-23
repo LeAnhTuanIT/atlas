@@ -36,7 +36,7 @@ prerequisite phải sửa trước.
 
 **Interfaces:** Không có (thay đổi tooling).
 
-- [ ] **Step 1: Viết file test tạm để xác nhận lỗi**
+- [x] **Step 1: Viết file test tạm để xác nhận lỗi**
 
 ```ts
 // src/__alias-check.spec.ts
@@ -47,12 +47,12 @@ test('alias @/ resolves', () => {
 });
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [x] **Step 2: Chạy test, xác nhận FAIL**
 
 Run: `npx jest src/__alias-check.spec.ts`
 Expected: FAIL với `Cannot find module '@/shared/infrastructure/utils/cookie.util'`
 
-- [ ] **Step 3: Thêm `moduleNameMapper` vào `package.json`**
+- [x] **Step 3: Thêm `moduleNameMapper` vào `package.json`**
 
 Trong `package.json`, khối `"jest"`, thêm key `moduleNameMapper` (giữ nguyên các key khác):
 
@@ -73,18 +73,18 @@ Trong `package.json`, khối `"jest"`, thêm key `moduleNameMapper` (giữ nguy�
 }
 ```
 
-- [ ] **Step 4: Chạy lại test, xác nhận PASS**
+- [x] **Step 4: Chạy lại test, xác nhận PASS**
 
 Run: `npx jest src/__alias-check.spec.ts`
 Expected: PASS
 
-- [ ] **Step 5: Xoá file test tạm**
+- [x] **Step 5: Xoá file test tạm**
 
 ```bash
 rm src/__alias-check.spec.ts
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add package.json
@@ -104,7 +104,7 @@ git commit -m "fix(test): map @/ alias for jest module resolution"
 **Interfaces:**
 - Produces: `IntegrationProviderEnum { ZALO_OA, ESMS }`, `IntegrationStatusEnum { ACTIVE, EXPIRED, REVOKED }`, `validateEnv()` yêu cầu thêm 4 biến `ZALO_OA_*`.
 
-- [ ] **Step 1: Viết test cho env validation (thêm biến bắt buộc)**
+- [x] **Step 1: Viết test cho env validation (thêm biến bắt buộc)**
 
 ```ts
 // src/infrastructure/configs/env.validation.spec.ts
@@ -146,12 +146,12 @@ describe('env.validation — Zalo OA', () => {
 });
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [x] **Step 2: Chạy test, xác nhận FAIL**
 
 Run: `npx jest src/infrastructure/configs/env.validation.spec.ts`
 Expected: FAIL (`ZALO_OA_APP_ID` không tồn tại trong type/schema hiện tại → field bị bỏ qua, test đầu tiên assert `toBe('app-id')` fail vì `undefined`)
 
-- [ ] **Step 3: Thêm biến vào schema**
+- [x] **Step 3: Thêm biến vào schema**
 
 Trong `src/infrastructure/configs/env.validation.ts`, thêm khối sau vào `envSchema`
 (sau khối `// MoMo`):
@@ -164,12 +164,12 @@ Trong `src/infrastructure/configs/env.validation.ts`, thêm khối sau vào `env
   ZALO_OA_STATE_SECRET: z.string().min(1),
 ```
 
-- [ ] **Step 4: Chạy lại test, xác nhận PASS**
+- [x] **Step 4: Chạy lại test, xác nhận PASS**
 
 Run: `npx jest src/infrastructure/configs/env.validation.spec.ts`
 Expected: PASS (2 test)
 
-- [ ] **Step 5: Tạo enum provider**
+- [x] **Step 5: Tạo enum provider**
 
 ```ts
 // src/modules/integrations/domain/value-objects/integration-provider.vo.ts
@@ -179,7 +179,7 @@ export enum IntegrationProviderEnum {
 }
 ```
 
-- [ ] **Step 6: Tạo enum status**
+- [x] **Step 6: Tạo enum status**
 
 ```ts
 // src/modules/integrations/domain/value-objects/integration-status.vo.ts
@@ -190,7 +190,7 @@ export enum IntegrationStatusEnum {
 }
 ```
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/infrastructure/configs/env.validation.ts src/infrastructure/configs/env.validation.spec.ts src/modules/integrations/domain/value-objects
@@ -221,7 +221,7 @@ git commit -m "feat(integrations): add Zalo OA env config and provider/status en
   - `interface IIntegrationConnectionRepository { findByMerchantAndProvider(merchantId: string, provider: IntegrationProviderEnum): Promise<IntegrationConnection | null>; findByExternalId(provider: IntegrationProviderEnum, externalId: string): Promise<IntegrationConnection | null>; findById(uuid: string): Promise<IntegrationConnection | null>; save(connection: IntegrationConnection): Promise<void>; }`
   - `const INTEGRATION_CONNECTION_REPOSITORY = Symbol('IIntegrationConnectionRepository')`
 
-- [ ] **Step 1: Viết test cho aggregate**
+- [x] **Step 1: Viết test cho aggregate**
 
 ```ts
 // src/modules/integrations/domain/models/integration-connection.aggregate.spec.ts
@@ -299,12 +299,12 @@ describe('IntegrationConnection', () => {
 });
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [x] **Step 2: Chạy test, xác nhận FAIL**
 
 Run: `npx jest src/modules/integrations/domain/models/integration-connection.aggregate.spec.ts`
 Expected: FAIL (`Cannot find module './integration-connection.aggregate'`)
 
-- [ ] **Step 3: Implement aggregate**
+- [x] **Step 3: Implement aggregate**
 
 ```ts
 // src/modules/integrations/domain/models/integration-connection.aggregate.ts
@@ -403,12 +403,12 @@ export class IntegrationConnection extends BaseEntity<string> {
 }
 ```
 
-- [ ] **Step 4: Chạy lại test, xác nhận PASS**
+- [x] **Step 4: Chạy lại test, xác nhận PASS**
 
 Run: `npx jest src/modules/integrations/domain/models/integration-connection.aggregate.spec.ts`
 Expected: PASS (4 test)
 
-- [ ] **Step 5: Tạo repository interface**
+- [x] **Step 5: Tạo repository interface**
 
 ```ts
 // src/modules/integrations/domain/repositories/integration-connection.repository.interface.ts
@@ -433,7 +433,7 @@ export const INTEGRATION_CONNECTION_REPOSITORY = Symbol(
 );
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/modules/integrations/domain/models/integration-connection.aggregate.ts src/modules/integrations/domain/models/integration-connection.aggregate.spec.ts src/modules/integrations/domain/repositories/integration-connection.repository.interface.ts
@@ -459,7 +459,7 @@ git commit -m "feat(integrations): add IntegrationConnection aggregate and repos
   - `interface IZaloOaMessageRepository { save(message): Promise<void>; existsByExternalMessageId(connectionId: string, externalMessageId: string): Promise<boolean>; findByConnection(connectionId: string, params: { cursor?: string; limit?: number }): Promise<{ items: ZaloOaMessage[]; hasNextPage: boolean; nextCursor: string | null }>; }`
   - `const ZALO_OA_MESSAGE_REPOSITORY = Symbol('IZaloOaMessageRepository')`
 
-- [ ] **Step 1: Viết test cho entity**
+- [x] **Step 1: Viết test cho entity**
 
 ```ts
 // src/modules/integrations/domain/models/zalo-oa-message.entity.spec.ts
@@ -506,12 +506,12 @@ describe('ZaloOaMessage', () => {
 });
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [x] **Step 2: Chạy test, xác nhận FAIL**
 
 Run: `npx jest src/modules/integrations/domain/models/zalo-oa-message.entity.spec.ts`
 Expected: FAIL (module not found)
 
-- [ ] **Step 3: Implement entity**
+- [x] **Step 3: Implement entity**
 
 ```ts
 // src/modules/integrations/domain/models/zalo-oa-message.entity.ts
@@ -588,12 +588,12 @@ export class ZaloOaMessage extends BaseEntity<string> {
 }
 ```
 
-- [ ] **Step 4: Chạy lại test, xác nhận PASS**
+- [x] **Step 4: Chạy lại test, xác nhận PASS**
 
 Run: `npx jest src/modules/integrations/domain/models/zalo-oa-message.entity.spec.ts`
 Expected: PASS (2 test)
 
-- [ ] **Step 5: Tạo repository interface**
+- [x] **Step 5: Tạo repository interface**
 
 ```ts
 // src/modules/integrations/domain/repositories/zalo-oa-message.repository.interface.ts
@@ -620,7 +620,7 @@ export interface IZaloOaMessageRepository {
 export const ZALO_OA_MESSAGE_REPOSITORY = Symbol('IZaloOaMessageRepository');
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/modules/integrations/domain/models/zalo-oa-message.entity.ts src/modules/integrations/domain/models/zalo-oa-message.entity.spec.ts src/modules/integrations/domain/repositories/zalo-oa-message.repository.interface.ts
@@ -643,7 +643,7 @@ git commit -m "feat(integrations): add ZaloOaMessage entity and repository port"
   - `class IntegrationConnectionOrmEntity extends BaseOrmEntity` (bảng `integration_connections`)
   - `class IntegrationConnectionMapper { static toDomain(orm): IntegrationConnection; static toOrm(domain): IntegrationConnectionOrmEntity }`
 
-- [ ] **Step 1: Viết test cho mapper (round-trip)**
+- [x] **Step 1: Viết test cho mapper (round-trip)**
 
 ```ts
 // src/modules/integrations/infrastructure/persistence/mappers/integration-connection.mapper.spec.ts
@@ -708,12 +708,12 @@ describe('IntegrationConnectionMapper', () => {
 });
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [x] **Step 2: Chạy test, xác nhận FAIL**
 
 Run: `npx jest src/modules/integrations/infrastructure/persistence/mappers/integration-connection.mapper.spec.ts`
 Expected: FAIL (module not found)
 
-- [ ] **Step 3: Tạo ORM entity**
+- [x] **Step 3: Tạo ORM entity**
 
 ```ts
 // src/modules/integrations/infrastructure/persistence/entities/integration-connection.orm-entity.ts
@@ -760,7 +760,7 @@ export class IntegrationConnectionOrmEntity extends BaseOrmEntity {
 }
 ```
 
-- [ ] **Step 4: Tạo mapper**
+- [x] **Step 4: Tạo mapper**
 
 ```ts
 // src/modules/integrations/infrastructure/persistence/mappers/integration-connection.mapper.ts
@@ -807,12 +807,12 @@ trong `payment` module) nên mapper gọi thẳng, không cần ép kiểu — c
 `create()`/mapper mới nên gọi trực tiếp theo quy ước, giữ đúng `createdAt/updatedAt`
 gốc từ DB thay vì sinh mới.
 
-- [ ] **Step 5: Chạy lại test, xác nhận PASS**
+- [x] **Step 5: Chạy lại test, xác nhận PASS**
 
 Run: `npx jest src/modules/integrations/infrastructure/persistence/mappers/integration-connection.mapper.spec.ts`
 Expected: PASS (2 test)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/modules/integrations/infrastructure/persistence/entities/integration-connection.orm-entity.ts src/modules/integrations/infrastructure/persistence/mappers/integration-connection.mapper.ts src/modules/integrations/infrastructure/persistence/mappers/integration-connection.mapper.spec.ts
@@ -833,7 +833,7 @@ git commit -m "feat(integrations): add IntegrationConnection ORM entity and mapp
 - Produces: `class ZaloOaMessageOrmEntity extends BaseOrmEntity` (bảng `zalo_oa_messages`),
   `class ZaloOaMessageMapper { static toDomain(orm): ZaloOaMessage; static toOrm(domain): ZaloOaMessageOrmEntity }`.
 
-- [ ] **Step 1: Viết test cho mapper**
+- [x] **Step 1: Viết test cho mapper**
 
 ```ts
 // src/modules/integrations/infrastructure/persistence/mappers/zalo-oa-message.mapper.spec.ts
@@ -869,12 +869,12 @@ describe('ZaloOaMessageMapper', () => {
 });
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [x] **Step 2: Chạy test, xác nhận FAIL**
 
 Run: `npx jest src/modules/integrations/infrastructure/persistence/mappers/zalo-oa-message.mapper.spec.ts`
 Expected: FAIL (module not found)
 
-- [ ] **Step 3: Tạo ORM entity**
+- [x] **Step 3: Tạo ORM entity**
 
 ```ts
 // src/modules/integrations/infrastructure/persistence/entities/zalo-oa-message.orm-entity.ts
@@ -913,7 +913,7 @@ export class ZaloOaMessageOrmEntity extends BaseOrmEntity {
 }
 ```
 
-- [ ] **Step 4: Tạo mapper**
+- [x] **Step 4: Tạo mapper**
 
 ```ts
 // src/modules/integrations/infrastructure/persistence/mappers/zalo-oa-message.mapper.ts
@@ -954,12 +954,12 @@ export class ZaloOaMessageMapper {
 }
 ```
 
-- [ ] **Step 5: Chạy lại test, xác nhận PASS**
+- [x] **Step 5: Chạy lại test, xác nhận PASS**
 
 Run: `npx jest src/modules/integrations/infrastructure/persistence/mappers/zalo-oa-message.mapper.spec.ts`
 Expected: PASS
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/modules/integrations/infrastructure/persistence/entities/zalo-oa-message.orm-entity.ts src/modules/integrations/infrastructure/persistence/mappers/zalo-oa-message.mapper.ts src/modules/integrations/infrastructure/persistence/mappers/zalo-oa-message.mapper.spec.ts
@@ -986,7 +986,7 @@ Không viết test cho 2 class này (đi qua DB thật) — nhất quán với
 vốn cũng không có test riêng; được xác minh gián tiếp qua `npm run build` (Task 15)
 và kiểm thử thủ công qua Swagger sau khi wiring xong (Task 14).
 
-- [ ] **Step 1: Implement `TypeOrmIntegrationConnectionRepository`**
+- [x] **Step 1: Implement `TypeOrmIntegrationConnectionRepository`**
 
 ```ts
 // src/modules/integrations/infrastructure/persistence/repositories/typeorm-integration-connection.repository.ts
@@ -1045,7 +1045,7 @@ export class TypeOrmIntegrationConnectionRepository
 }
 ```
 
-- [ ] **Step 2: Implement `TypeOrmZaloOaMessageRepository`**
+- [x] **Step 2: Implement `TypeOrmZaloOaMessageRepository`**
 
 ```ts
 // src/modules/integrations/infrastructure/persistence/repositories/typeorm-zalo-oa-message.repository.ts
@@ -1108,7 +1108,7 @@ export class TypeOrmZaloOaMessageRepository
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/modules/integrations/infrastructure/persistence/repositories
@@ -1135,7 +1135,7 @@ git commit -m "feat(integrations): add TypeORM repositories for connection and m
   - `interface IOAuthConnectable { getAuthUrl(state: string): string; exchangeCode(code: string): Promise<ExchangedToken>; refreshAccessToken(refreshToken: string): Promise<ExchangedToken> }`
   - `class IntegrationGatewayFactory { getMessagingGateway(provider: IntegrationProviderEnum): IMessagingGateway }` — nhận danh sách `IMessagingGateway[]` qua constructor (Nest tự inject multi-provider bằng token riêng, xem Task 14), map theo `getProvider()`.
 
-- [ ] **Step 1: Viết test cho factory (dùng fake gateway, không phụ thuộc ZaloOaGateway thật)**
+- [x] **Step 1: Viết test cho factory (dùng fake gateway, không phụ thuộc ZaloOaGateway thật)**
 
 ```ts
 // src/modules/integrations/infrastructure/gateways/integration-gateway.factory.spec.ts
@@ -1169,12 +1169,12 @@ describe('IntegrationGatewayFactory', () => {
 });
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [x] **Step 2: Chạy test, xác nhận FAIL**
 
 Run: `npx jest src/modules/integrations/infrastructure/gateways/integration-gateway.factory.spec.ts`
 Expected: FAIL (module not found)
 
-- [ ] **Step 3: Tạo `messaging-gateway.interface.ts`**
+- [x] **Step 3: Tạo `messaging-gateway.interface.ts`**
 
 ```ts
 // src/modules/integrations/domain/services/messaging-gateway.interface.ts
@@ -1197,7 +1197,7 @@ export interface IMessagingGateway {
 }
 ```
 
-- [ ] **Step 4: Tạo `oauth-connectable.interface.ts`**
+- [x] **Step 4: Tạo `oauth-connectable.interface.ts`**
 
 ```ts
 // src/modules/integrations/domain/services/oauth-connectable.interface.ts
@@ -1214,7 +1214,7 @@ export interface IOAuthConnectable {
 }
 ```
 
-- [ ] **Step 5: Implement factory**
+- [x] **Step 5: Implement factory**
 
 ```ts
 // src/modules/integrations/infrastructure/gateways/integration-gateway.factory.ts
@@ -1254,19 +1254,19 @@ Test ở Step 1 gọi `new IntegrationGatewayFactory([new FakeZaloGateway()])` t
 tiếp (bỏ qua DI, truyền mảng thẳng vào constructor) nên không cần biết token DI —
 token `MESSAGING_GATEWAYS` chỉ dùng khi Nest wiring thật (Task 14).
 
-- [ ] **Step 6: Tạo DI token cho multi-provider injection**
+- [x] **Step 6: Tạo DI token cho multi-provider injection**
 
 ```ts
 // src/modules/integrations/infrastructure/gateways/messaging-gateways.token.ts
 export const MESSAGING_GATEWAYS = Symbol('MESSAGING_GATEWAYS');
 ```
 
-- [ ] **Step 7: Chạy lại test, xác nhận PASS**
+- [x] **Step 7: Chạy lại test, xác nhận PASS**
 
 Run: `npx jest src/modules/integrations/infrastructure/gateways/integration-gateway.factory.spec.ts`
 Expected: PASS (2 test)
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/modules/integrations/domain/services src/modules/integrations/infrastructure/gateways
@@ -1286,7 +1286,7 @@ git commit -m "feat(integrations): add messaging/oauth ports and gateway factory
 - Produces: `class ZaloOaStateService { signState(merchantId: string): Promise<string>; verifyState(state: string): Promise<{ merchantId: string }> }`
   (`verifyState` throw `UnauthorizedException` nếu state sai/hết hạn).
 
-- [ ] **Step 1: Viết test**
+- [x] **Step 1: Viết test**
 
 ```ts
 // src/modules/integrations/infrastructure/services/zalo-oa-state.service.spec.ts
@@ -1327,12 +1327,12 @@ describe('ZaloOaStateService', () => {
 });
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [x] **Step 2: Chạy test, xác nhận FAIL**
 
 Run: `npx jest src/modules/integrations/infrastructure/services/zalo-oa-state.service.spec.ts`
 Expected: FAIL (module not found)
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 ```ts
 // src/modules/integrations/infrastructure/services/zalo-oa-state.service.ts
@@ -1380,12 +1380,12 @@ export class ZaloOaStateService {
 }
 ```
 
-- [ ] **Step 4: Chạy lại test, xác nhận PASS**
+- [x] **Step 4: Chạy lại test, xác nhận PASS**
 
 Run: `npx jest src/modules/integrations/infrastructure/services/zalo-oa-state.service.spec.ts`
 Expected: PASS (3 test)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/modules/integrations/infrastructure/services
@@ -1415,7 +1415,7 @@ Zalo OA endpoint dùng thật (theo tài liệu Zalo OA Developers — Xác th�
 - Gửi tin: `POST https://openapi.zalo.me/v3.0/oa/message/cs`, header `access_token`,
   body JSON `{ recipient: { user_id }, message: { text } }`
 
-- [ ] **Step 1: Viết test (mock `axios` và repository)**
+- [x] **Step 1: Viết test (mock `axios` và repository)**
 
 ```ts
 // src/modules/integrations/infrastructure/gateways/zalo-oa.gateway.spec.ts
@@ -1578,12 +1578,12 @@ describe('ZaloOaGateway', () => {
 });
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [x] **Step 2: Chạy test, xác nhận FAIL**
 
 Run: `npx jest src/modules/integrations/infrastructure/gateways/zalo-oa.gateway.spec.ts`
 Expected: FAIL (module not found)
 
-- [ ] **Step 3: Implement `ZaloOaGateway`**
+- [x] **Step 3: Implement `ZaloOaGateway`**
 
 ```ts
 // src/modules/integrations/infrastructure/gateways/zalo-oa.gateway.ts
@@ -1767,12 +1767,12 @@ export class ZaloOaGateway implements IMessagingGateway, IOAuthConnectable {
 }
 ```
 
-- [ ] **Step 4: Chạy lại test, xác nhận PASS**
+- [x] **Step 4: Chạy lại test, xác nhận PASS**
 
 Run: `npx jest src/modules/integrations/infrastructure/gateways/zalo-oa.gateway.spec.ts`
 Expected: PASS (7 test)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/modules/integrations/infrastructure/gateways/zalo-oa.gateway.ts src/modules/integrations/infrastructure/gateways/zalo-oa.gateway.spec.ts
@@ -1795,7 +1795,7 @@ git commit -m "feat(integrations): implement ZaloOaGateway (OAuth exchange, refr
   - `class LinkZaloOaCommand { constructor(public readonly merchantId: string, public readonly code: string, public readonly oaId: string) {} }`
   - `class LinkZaloOaHandler { constructor(gateway: IOAuthConnectable-compatible ZaloOaGateway, repo); execute(cmd: LinkZaloOaCommand): Promise<IntegrationConnection> }`
 
-- [ ] **Step 1: Viết test**
+- [x] **Step 1: Viết test**
 
 ```ts
 // src/modules/integrations/application/commands/link-zalo-oa/link-zalo-oa.handler.spec.ts
@@ -1864,12 +1864,12 @@ describe('LinkZaloOaHandler', () => {
 });
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [x] **Step 2: Chạy test, xác nhận FAIL**
 
 Run: `npx jest src/modules/integrations/application/commands/link-zalo-oa/link-zalo-oa.handler.spec.ts`
 Expected: FAIL (module not found)
 
-- [ ] **Step 3: Tạo command**
+- [x] **Step 3: Tạo command**
 
 ```ts
 // src/modules/integrations/application/commands/link-zalo-oa/link-zalo-oa.command.ts
@@ -1882,7 +1882,7 @@ export class LinkZaloOaCommand {
 }
 ```
 
-- [ ] **Step 4: Implement handler**
+- [x] **Step 4: Implement handler**
 
 ```ts
 // src/modules/integrations/application/commands/link-zalo-oa/link-zalo-oa.handler.ts
@@ -1946,19 +1946,19 @@ handler chỉ cần phần `IOAuthConnectable` (tách khỏi `MESSAGING_GATEWAYS
 instance `ZaloOaGateway` nhưng handler chỉ phụ thuộc vào interface nó cần, đúng
 nguyên tắc Interface Segregation).
 
-- [ ] **Step 5: Tạo token DI cho `IOAuthConnectable`**
+- [x] **Step 5: Tạo token DI cho `IOAuthConnectable`**
 
 ```ts
 // src/modules/integrations/application/ports/zalo-oa-oauth-connectable.token.ts
 export const ZALO_OA_OAUTH_CONNECTABLE = Symbol('ZaloOaOAuthConnectable');
 ```
 
-- [ ] **Step 6: Chạy lại test, xác nhận PASS**
+- [x] **Step 6: Chạy lại test, xác nhận PASS**
 
 Run: `npx jest src/modules/integrations/application/commands/link-zalo-oa/link-zalo-oa.handler.spec.ts`
 Expected: PASS (2 test)
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/modules/integrations/application/commands/link-zalo-oa src/modules/integrations/application/ports
@@ -1981,7 +1981,7 @@ git commit -m "feat(integrations): add LinkZaloOaHandler for OAuth callback proc
   - `interface IntegrationStatusResult { connected: boolean; externalId?: string; status?: IntegrationStatusEnum; metadata?: Record<string, any> }`
   - `class GetIntegrationStatusHandler { execute(query): Promise<IntegrationStatusResult> }`
 
-- [ ] **Step 1: Viết test**
+- [x] **Step 1: Viết test**
 
 ```ts
 // src/modules/integrations/application/queries/get-integration-status/get-integration-status.handler.spec.ts
@@ -2029,12 +2029,12 @@ describe('GetIntegrationStatusHandler', () => {
 });
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [x] **Step 2: Chạy test, xác nhận FAIL**
 
 Run: `npx jest src/modules/integrations/application/queries/get-integration-status/get-integration-status.handler.spec.ts`
 Expected: FAIL (module not found)
 
-- [ ] **Step 3: Tạo query**
+- [x] **Step 3: Tạo query**
 
 ```ts
 // src/modules/integrations/application/queries/get-integration-status/get-integration-status.query.ts
@@ -2048,7 +2048,7 @@ export class GetIntegrationStatusQuery {
 }
 ```
 
-- [ ] **Step 4: Implement handler**
+- [x] **Step 4: Implement handler**
 
 ```ts
 // src/modules/integrations/application/queries/get-integration-status/get-integration-status.handler.ts
@@ -2096,12 +2096,12 @@ export class GetIntegrationStatusHandler {
 }
 ```
 
-- [ ] **Step 5: Chạy lại test, xác nhận PASS**
+- [x] **Step 5: Chạy lại test, xác nhận PASS**
 
 Run: `npx jest src/modules/integrations/application/queries/get-integration-status/get-integration-status.handler.spec.ts`
 Expected: PASS (2 test)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/modules/integrations/application/queries/get-integration-status
@@ -2125,7 +2125,7 @@ git commit -m "feat(integrations): add GetIntegrationStatusHandler"
   - `class SendZaloOaMessageHandler { execute(cmd): Promise<{ externalMessageId: string }> }`
     (throw `NotFoundException` nếu merchant chưa liên kết OA)
 
-- [ ] **Step 1: Viết test**
+- [x] **Step 1: Viết test**
 
 ```ts
 // src/modules/integrations/application/commands/send-zalo-oa-message/send-zalo-oa-message.handler.spec.ts
@@ -2195,12 +2195,12 @@ describe('SendZaloOaMessageHandler', () => {
 });
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [x] **Step 2: Chạy test, xác nhận FAIL**
 
 Run: `npx jest src/modules/integrations/application/commands/send-zalo-oa-message/send-zalo-oa-message.handler.spec.ts`
 Expected: FAIL (module not found)
 
-- [ ] **Step 3: Tạo command**
+- [x] **Step 3: Tạo command**
 
 ```ts
 // src/modules/integrations/application/commands/send-zalo-oa-message/send-zalo-oa-message.command.ts
@@ -2214,7 +2214,7 @@ export class SendZaloOaMessageCommand {
 }
 ```
 
-- [ ] **Step 4: Implement handler**
+- [x] **Step 4: Implement handler**
 
 ```ts
 // src/modules/integrations/application/commands/send-zalo-oa-message/send-zalo-oa-message.handler.ts
@@ -2284,12 +2284,12 @@ export class SendZaloOaMessageHandler {
 }
 ```
 
-- [ ] **Step 5: Chạy lại test, xác nhận PASS**
+- [x] **Step 5: Chạy lại test, xác nhận PASS**
 
 Run: `npx jest src/modules/integrations/application/commands/send-zalo-oa-message/send-zalo-oa-message.handler.spec.ts`
 Expected: PASS (2 test)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/modules/integrations/application/commands/send-zalo-oa-message
@@ -2323,7 +2323,7 @@ chính xác với tài liệu Webhook mới nhất của Zalo OA trước khi b�
 trường production** (đã ghi chú trong spec §8, ngoài phạm vi kiểm chứng của task này
 do không có sandbox Zalo thật).
 
-- [ ] **Step 1: Viết test cho verify signature**
+- [x] **Step 1: Viết test cho verify signature**
 
 ```ts
 // src/modules/integrations/infrastructure/webhook/verify-zalo-oa-webhook-signature.spec.ts
@@ -2368,12 +2368,12 @@ describe('verifyZaloOaWebhookSignature', () => {
 });
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [x] **Step 2: Chạy test, xác nhận FAIL**
 
 Run: `npx jest src/modules/integrations/infrastructure/webhook/verify-zalo-oa-webhook-signature.spec.ts`
 Expected: FAIL (module not found)
 
-- [ ] **Step 3: Implement verify signature**
+- [x] **Step 3: Implement verify signature**
 
 ```ts
 // src/modules/integrations/infrastructure/webhook/verify-zalo-oa-webhook-signature.ts
@@ -2397,12 +2397,12 @@ export function verifyZaloOaWebhookSignature(
 }
 ```
 
-- [ ] **Step 4: Chạy lại test, xác nhận PASS**
+- [x] **Step 4: Chạy lại test, xác nhận PASS**
 
 Run: `npx jest src/modules/integrations/infrastructure/webhook/verify-zalo-oa-webhook-signature.spec.ts`
 Expected: PASS (3 test)
 
-- [ ] **Step 5: Viết test cho `SyncZaloOaWebhookEventHandler`**
+- [x] **Step 5: Viết test cho `SyncZaloOaWebhookEventHandler`**
 
 ```ts
 // src/modules/integrations/application/commands/sync-zalo-oa-webhook-event/sync-zalo-oa-webhook-event.handler.spec.ts
@@ -2514,12 +2514,12 @@ describe('SyncZaloOaWebhookEventHandler', () => {
 });
 ```
 
-- [ ] **Step 6: Chạy test, xác nhận FAIL**
+- [x] **Step 6: Chạy test, xác nhận FAIL**
 
 Run: `npx jest src/modules/integrations/application/commands/sync-zalo-oa-webhook-event/sync-zalo-oa-webhook-event.handler.spec.ts`
 Expected: FAIL (module not found)
 
-- [ ] **Step 7: Tạo command**
+- [x] **Step 7: Tạo command**
 
 ```ts
 // src/modules/integrations/application/commands/sync-zalo-oa-webhook-event/sync-zalo-oa-webhook-event.command.ts
@@ -2535,7 +2535,7 @@ export class SyncZaloOaWebhookEventCommand {
 }
 ```
 
-- [ ] **Step 8: Implement handler**
+- [x] **Step 8: Implement handler**
 
 ```ts
 // src/modules/integrations/application/commands/sync-zalo-oa-webhook-event/sync-zalo-oa-webhook-event.handler.ts
@@ -2612,12 +2612,12 @@ export class SyncZaloOaWebhookEventHandler {
 }
 ```
 
-- [ ] **Step 9: Chạy lại test, xác nhận PASS**
+- [x] **Step 9: Chạy lại test, xác nhận PASS**
 
 Run: `npx jest src/modules/integrations/application/commands/sync-zalo-oa-webhook-event/sync-zalo-oa-webhook-event.handler.spec.ts`
 Expected: PASS (4 test)
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add src/modules/integrations/infrastructure/webhook src/modules/integrations/application/commands/sync-zalo-oa-webhook-event
@@ -2640,7 +2640,7 @@ git commit -m "feat(integrations): add webhook signature verification and event 
   - `class ListZaloOaMessagesHandler { execute(query): Promise<ZaloOaMessagePage> }` (throw
     `NotFoundException` nếu merchant chưa liên kết OA)
 
-- [ ] **Step 1: Viết test**
+- [x] **Step 1: Viết test**
 
 ```ts
 // src/modules/integrations/application/queries/list-zalo-oa-messages/list-zalo-oa-messages.handler.spec.ts
@@ -2692,12 +2692,12 @@ describe('ListZaloOaMessagesHandler', () => {
 });
 ```
 
-- [ ] **Step 2: Chạy test, xác nhận FAIL**
+- [x] **Step 2: Chạy test, xác nhận FAIL**
 
 Run: `npx jest src/modules/integrations/application/queries/list-zalo-oa-messages/list-zalo-oa-messages.handler.spec.ts`
 Expected: FAIL (module not found)
 
-- [ ] **Step 3: Tạo query**
+- [x] **Step 3: Tạo query**
 
 ```ts
 // src/modules/integrations/application/queries/list-zalo-oa-messages/list-zalo-oa-messages.query.ts
@@ -2710,7 +2710,7 @@ export class ListZaloOaMessagesQuery {
 }
 ```
 
-- [ ] **Step 4: Implement handler**
+- [x] **Step 4: Implement handler**
 
 ```ts
 // src/modules/integrations/application/queries/list-zalo-oa-messages/list-zalo-oa-messages.handler.ts
@@ -2753,12 +2753,12 @@ export class ListZaloOaMessagesHandler {
 }
 ```
 
-- [ ] **Step 5: Chạy lại test, xác nhận PASS**
+- [x] **Step 5: Chạy lại test, xác nhận PASS**
 
 Run: `npx jest src/modules/integrations/application/queries/list-zalo-oa-messages/list-zalo-oa-messages.handler.spec.ts`
 Expected: PASS (2 test)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/modules/integrations/application/queries/list-zalo-oa-messages
@@ -2781,7 +2781,7 @@ Không cần task test riêng — đây là DTO validate bằng decorator, đư�
 tiếp khi test controller thủ công (Task 17) và qua `ValidationPipe` toàn cục đã bật
 sẵn ở `main.ts`.
 
-- [ ] **Step 1: Tạo `SendZaloOaMessageDto`**
+- [x] **Step 1: Tạo `SendZaloOaMessageDto`**
 
 ```ts
 // src/modules/integrations/application/dtos/send-zalo-oa-message.dto.ts
@@ -2803,7 +2803,7 @@ export class SendZaloOaMessageDto {
 }
 ```
 
-- [ ] **Step 2: Tạo `ListZaloOaMessagesDto`**
+- [x] **Step 2: Tạo `ListZaloOaMessagesDto`**
 
 ```ts
 // src/modules/integrations/application/dtos/list-zalo-oa-messages.dto.ts
@@ -2824,7 +2824,7 @@ export class ListZaloOaMessagesDto {
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/modules/integrations/application/dtos
@@ -2852,7 +2852,7 @@ Không viết test HTTP cho controller — nhất quán với `MerchantControlle
 có test controller riêng. Xác minh bằng chạy `npm run start:dev` + gọi thử qua
 Swagger (`/api/docs` nếu có bật) hoặc `curl`, mô tả ở Step 6.
 
-- [ ] **Step 1: Implement `ZaloOaController` (merchant-guarded)**
+- [x] **Step 1: Implement `ZaloOaController` (merchant-guarded)**
 
 ```ts
 // src/modules/integrations/presentation/http/zalo-oa.controller.ts
@@ -2941,7 +2941,7 @@ export class ZaloOaController {
 }
 ```
 
-- [ ] **Step 2: Implement `ZaloOaCallbackController` (public)**
+- [x] **Step 2: Implement `ZaloOaCallbackController` (public)**
 
 ```ts
 // src/modules/integrations/presentation/http/zalo-oa-callback.controller.ts
@@ -2988,7 +2988,7 @@ export class ZaloOaCallbackController {
 }
 ```
 
-- [ ] **Step 3: Implement `ZaloOaWebhookController` (public)**
+- [x] **Step 3: Implement `ZaloOaWebhookController` (public)**
 
 ```ts
 // src/modules/integrations/presentation/http/zalo-oa-webhook.controller.ts
@@ -3050,7 +3050,7 @@ export class ZaloOaWebhookController {
 }
 ```
 
-- [ ] **Step 4: Tạo `integrations.module.ts`**
+- [x] **Step 4: Tạo `integrations.module.ts`**
 
 ```ts
 // src/modules/integrations/integrations.module.ts
@@ -3122,7 +3122,7 @@ import { ZaloOaWebhookController } from './presentation/http/zalo-oa-webhook.con
 export class IntegrationsModule {}
 ```
 
-- [ ] **Step 5: Đăng ký `IntegrationsModule` vào `AppModule`**
+- [x] **Step 5: Đăng ký `IntegrationsModule` vào `AppModule`**
 
 Trong `src/app.module.ts`, thêm import và đưa vào mảng `imports`:
 
@@ -3139,7 +3139,7 @@ import { IntegrationsModule } from './modules/integrations/integrations.module';
 
 (thay cho đoạn 3 dòng cuối hiện tại `MerchantModule, WalletModule, PaymentModule,`)
 
-- [ ] **Step 6: Build và kiểm thử thủ công**
+- [x] **Step 6: Build và kiểm thử thủ công**
 
 ```bash
 npm run build
@@ -3155,7 +3155,7 @@ chạy `npm run start:dev`, rồi kiểm tra thủ công:
 - `GET /api/v1/merchant/integrations/zalo-oa/connect-url` → trả `{ url }` trỏ đúng
   `oauth.zaloapp.com`.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/modules/integrations/presentation src/modules/integrations/integrations.module.ts src/app.module.ts
@@ -3168,7 +3168,7 @@ git commit -m "feat(integrations): wire Zalo OA controllers and register Integra
 
 **Files:** Không tạo/sửa file — chỉ chạy kiểm tra tổng.
 
-- [ ] **Step 1: Chạy toàn bộ test suite**
+- [x] **Step 1: Chạy toàn bộ test suite**
 
 ```bash
 npm test
@@ -3177,7 +3177,7 @@ npm test
 Expected: PASS toàn bộ (bao gồm các test mới ở Task 2–16 và các test hiện có trong
 repo, nếu có).
 
-- [ ] **Step 2: Chạy lint**
+- [x] **Step 2: Chạy lint**
 
 ```bash
 npm run lint
@@ -3186,7 +3186,7 @@ npm run lint
 Expected: không có lỗi ESLint mới phát sinh từ các file trong `src/modules/integrations`.
 Sửa các lỗi lint nếu có (thường là import order/unused var) rồi chạy lại.
 
-- [ ] **Step 3: Chạy build**
+- [x] **Step 3: Chạy build**
 
 ```bash
 npm run build
@@ -3194,7 +3194,7 @@ npm run build
 
 Expected: PASS, không lỗi TypeScript.
 
-- [ ] **Step 4: Commit (nếu Step 2 có sửa file)**
+- [x] **Step 4: Commit (nếu Step 2 có sửa file)**
 
 ```bash
 git add -A
