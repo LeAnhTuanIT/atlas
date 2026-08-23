@@ -243,7 +243,9 @@ describe('ZaloOaGateway', () => {
       },
     );
 
-    const layout = { body: { components: [{ TITLE: { value: 'Xác nhận đơn hàng' } }] } };
+    const layout = {
+      body: { components: [{ TITLE: { value: 'Xác nhận đơn hàng' } }] },
+    };
     const params = [{ type: '1', name: 'name', sample_value: 'A' }];
 
     it('gọi template/create khi template chưa có templateId', async () => {

@@ -7,7 +7,10 @@ import { IntegrationProviderEnum } from '@/modules/integrations/domain/value-obj
 describe('CreateZbsTemplateDraftHandler', () => {
   const connectionRepo = { findByMerchantAndProvider: jest.fn() } as any;
   const templateRepo = { save: jest.fn() } as any;
-  const handler = new CreateZbsTemplateDraftHandler(connectionRepo, templateRepo);
+  const handler = new CreateZbsTemplateDraftHandler(
+    connectionRepo,
+    templateRepo,
+  );
 
   beforeEach(() => jest.clearAllMocks());
 

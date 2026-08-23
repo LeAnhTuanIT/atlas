@@ -24,27 +24,25 @@ describe('verifyZbsTemplateWebhookSignature', () => {
 
   it('trả true khi mac khớp', () => {
     const mac = computeMac(body);
-    expect(
-      verifyZbsTemplateWebhookSignature(body, mac, secretKey),
-    ).toBe(true);
+    expect(verifyZbsTemplateWebhookSignature(body, mac, secretKey)).toBe(true);
   });
 
   it('trả false khi mac không khớp (body bị sửa)', () => {
     const mac = computeMac(body);
     const tampered = { ...body, template_id: '999999' };
-    expect(
-      verifyZbsTemplateWebhookSignature(tampered, mac, secretKey),
-    ).toBe(false);
+    expect(verifyZbsTemplateWebhookSignature(tampered, mac, secretKey)).toBe(
+      false,
+    );
   });
 
   it('trả false khi thiếu header signature', () => {
-    expect(
-      verifyZbsTemplateWebhookSignature(body, undefined, secretKey),
-    ).toBe(false);
+    expect(verifyZbsTemplateWebhookSignature(body, undefined, secretKey)).toBe(
+      false,
+    );
   });
 
   it('trả false khi body thiếu app_id hoặc timestamp', () => {
-    const { app_id, ...rest } = body;
+    const { app_id: _app_id, ...rest } = body;
     expect(
       verifyZbsTemplateWebhookSignature(rest, 'bat-ky-mac-nao', secretKey),
     ).toBe(false);

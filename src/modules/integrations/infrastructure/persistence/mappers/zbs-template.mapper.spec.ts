@@ -4,7 +4,9 @@ import { ZbsTemplateMapper } from './zbs-template.mapper';
 
 describe('ZbsTemplateMapper', () => {
   it('toOrm() rồi toDomain() giữ nguyên dữ liệu — draft chưa publish (templateId null)', () => {
-    const layout = { body: { components: [{ TITLE: { value: 'Xác nhận đơn hàng' } }] } };
+    const layout = {
+      body: { components: [{ TITLE: { value: 'Xác nhận đơn hàng' } }] },
+    };
     const params = [{ type: '1', name: 'name', sample_value: 'A' }];
     const domain = ZbsTemplate.createDraft({
       connectionId: 'conn-1',

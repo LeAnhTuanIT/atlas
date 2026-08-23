@@ -23,9 +23,7 @@ export class UpdateZbsTemplateStatusFromWebhookHandler {
     private readonly templateRepo: IZbsTemplateRepository,
   ) {}
 
-  async execute(
-    cmd: UpdateZbsTemplateStatusFromWebhookCommand,
-  ): Promise<void> {
+  async execute(cmd: UpdateZbsTemplateStatusFromWebhookCommand): Promise<void> {
     const connection = await this.connectionRepo.findByExternalId(
       IntegrationProviderEnum.ZALO_OA,
       cmd.oaId,

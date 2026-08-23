@@ -95,7 +95,10 @@ describe('ZbsTemplate', () => {
       params,
     });
 
-    template.markPublished({ templateId: 'zns-tpl-99', status: 'PENDING_REVIEW' });
+    template.markPublished({
+      templateId: 'zns-tpl-99',
+      status: 'PENDING_REVIEW',
+    });
 
     expect(template.getTemplateId()).toBe('zns-tpl-99');
     expect(template.getStatus()).toBe('PENDING_REVIEW');

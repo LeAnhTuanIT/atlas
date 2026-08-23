@@ -11,7 +11,10 @@ describe('UpdateZbsTemplateDraftHandler', () => {
     findByUuidAndConnection: jest.fn(),
     save: jest.fn(),
   } as any;
-  const handler = new UpdateZbsTemplateDraftHandler(connectionRepo, templateRepo);
+  const handler = new UpdateZbsTemplateDraftHandler(
+    connectionRepo,
+    templateRepo,
+  );
 
   beforeEach(() => jest.clearAllMocks());
 

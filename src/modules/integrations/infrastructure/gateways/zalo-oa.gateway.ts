@@ -30,7 +30,8 @@ const ZALO_OAUTH_TOKEN_URL = 'https://oauth.zaloapp.com/v4/oa/access_token';
 const ZALO_OAUTH_PERMISSION_URL = 'https://oauth.zaloapp.com/v4/oa/permission';
 const ZALO_SEND_MESSAGE_URL = 'https://openapi.zalo.me/v3.0/oa/message/cs';
 const ZALO_LIST_TEMPLATES_URL = 'https://business.openapi.zalo.me/template/all';
-const ZALO_CREATE_TEMPLATE_URL = 'https://business.openapi.zalo.me/template/create';
+const ZALO_CREATE_TEMPLATE_URL =
+  'https://business.openapi.zalo.me/template/create';
 const ZALO_EDIT_TEMPLATE_URL = 'https://business.openapi.zalo.me/template/edit';
 
 export interface ZbsTemplateApiItem {

@@ -121,8 +121,10 @@ export class ZbsTemplate extends BaseEntity<string> {
   }
 
   updateDraft(update: ZbsTemplateDraftUpdate): void {
-    if (update.templateName !== undefined) this.templateName = update.templateName;
-    if (update.templateType !== undefined) this.templateType = update.templateType;
+    if (update.templateName !== undefined)
+      this.templateName = update.templateName;
+    if (update.templateType !== undefined)
+      this.templateType = update.templateType;
     if (update.tag !== undefined) this.tag = update.tag;
     if (update.layout !== undefined) this.layout = update.layout;
     if (update.params !== undefined) this.params = update.params;
