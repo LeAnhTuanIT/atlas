@@ -12,6 +12,7 @@ import { CorrelationIdMiddleware } from './shared/infrastructure/middlewares/cor
 import { ClsModule } from 'nestjs-cls';
 import { PaymentModule } from './modules/payment/payment.module';
 import { WalletModule } from './modules/wallet/wallet.module';
+import { IntegrationsModule } from './modules/integrations/integrations.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { WalletModule } from './modules/wallet/wallet.module';
     MerchantModule,
     WalletModule,
     PaymentModule,
+    IntegrationsModule,
   ],
 })
 export class AppModule implements NestModule {

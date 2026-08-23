@@ -72,6 +72,12 @@ export const envSchema = z.object({
   MOMO_API_ENDPOINT: z.string().min(1),
   MOMO_NOTIFY_URL: z.string().optional(),
   MOMO_RETURN_URL: z.string().optional(),
+
+  // Zalo OA
+  ZALO_OA_APP_ID: z.string().min(1),
+  ZALO_OA_SECRET_KEY: z.string().min(1),
+  ZALO_OA_REDIRECT_URI: z.string().min(1),
+  ZALO_OA_STATE_SECRET: z.string().min(1),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;
