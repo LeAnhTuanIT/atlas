@@ -9,7 +9,10 @@ describe('SyncZaloOaWebhookEventHandler', () => {
     save: jest.fn(),
     existsByExternalMessageId: jest.fn(),
   } as any;
-  const handler = new SyncZaloOaWebhookEventHandler(connectionRepo, messageRepo);
+  const handler = new SyncZaloOaWebhookEventHandler(
+    connectionRepo,
+    messageRepo,
+  );
 
   beforeEach(() => jest.clearAllMocks());
 

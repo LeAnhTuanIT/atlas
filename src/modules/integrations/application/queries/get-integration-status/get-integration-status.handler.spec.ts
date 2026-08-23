@@ -11,7 +11,10 @@ describe('GetIntegrationStatusHandler', () => {
     repo.findByMerchantAndProvider.mockResolvedValueOnce(null);
 
     const result = await handler.execute(
-      new GetIntegrationStatusQuery('merchant-1', IntegrationProviderEnum.ZALO_OA),
+      new GetIntegrationStatusQuery(
+        'merchant-1',
+        IntegrationProviderEnum.ZALO_OA,
+      ),
     );
 
     expect(result).toEqual({ connected: false });
@@ -32,7 +35,10 @@ describe('GetIntegrationStatusHandler', () => {
     repo.findByMerchantAndProvider.mockResolvedValueOnce(connection);
 
     const result = await handler.execute(
-      new GetIntegrationStatusQuery('merchant-1', IntegrationProviderEnum.ZALO_OA),
+      new GetIntegrationStatusQuery(
+        'merchant-1',
+        IntegrationProviderEnum.ZALO_OA,
+      ),
     );
 
     expect(result.connected).toBe(true);

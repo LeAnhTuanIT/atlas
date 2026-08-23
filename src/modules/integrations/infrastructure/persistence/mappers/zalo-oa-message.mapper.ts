@@ -1,7 +1,4 @@
-import {
-  ZaloOaMessage,
-  ZaloOaMessageDirectionEnum,
-} from '@/modules/integrations/domain/models/zalo-oa-message.entity';
+import { ZaloOaMessage } from '@/modules/integrations/domain/models/zalo-oa-message.entity';
 import { ZaloOaMessageOrmEntity } from '../entities/zalo-oa-message.orm-entity';
 
 export class ZaloOaMessageMapper {
@@ -24,7 +21,7 @@ export class ZaloOaMessageMapper {
     const orm = new ZaloOaMessageOrmEntity();
     orm.uuid = domain.getUuid();
     orm.connectionId = domain.getConnectionId();
-    orm.direction = domain.getDirection() as ZaloOaMessageDirectionEnum;
+    orm.direction = domain.getDirection();
     orm.zaloUserId = domain.getZaloUserId();
     orm.content = domain.getContent();
     orm.messageType = domain.getMessageType();

@@ -23,8 +23,7 @@ export class ZaloOaCallbackController {
     @Res() res: Response,
   ) {
     const redirectBase =
-      this.configService.get<string>('APP_BASE_URL') ||
-      'http://localhost:3000';
+      this.configService.get<string>('APP_BASE_URL') || 'http://localhost:3000';
     const redirectTo = `${redirectBase}/merchant/integrations/zalo-oa`;
 
     try {

@@ -23,9 +23,8 @@ export class ZaloOaWebhookController {
   @Post('webhook')
   @HttpCode(HttpStatus.OK)
   async handleWebhook(@Body() body: any) {
-    const secretKey = this.configService.getOrThrow<string>(
-      'ZALO_OA_SECRET_KEY',
-    );
+    const secretKey =
+      this.configService.getOrThrow<string>('ZALO_OA_SECRET_KEY');
 
     if (!verifyZaloOaWebhookSignature(body, secretKey)) {
       this.logger.warn(
@@ -46,9 +45,7 @@ export class ZaloOaWebhookController {
         ),
       );
     } catch (error: any) {
-      this.logger.error(
-        `Lỗi xử lý sự kiện webhook Zalo OA: ${error?.message}`,
-      );
+      this.logger.error(`Lỗi xử lý sự kiện webhook Zalo OA: ${error?.message}`);
     }
 
     return {};

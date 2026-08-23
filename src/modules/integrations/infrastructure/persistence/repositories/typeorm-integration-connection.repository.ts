@@ -8,9 +8,7 @@ import { IntegrationConnectionOrmEntity } from '../entities/integration-connecti
 import { IntegrationConnectionMapper } from '../mappers/integration-connection.mapper';
 
 @Injectable()
-export class TypeOrmIntegrationConnectionRepository
-  implements IIntegrationConnectionRepository
-{
+export class TypeOrmIntegrationConnectionRepository implements IIntegrationConnectionRepository {
   constructor(
     @InjectRepository(IntegrationConnectionOrmEntity)
     private readonly repo: Repository<IntegrationConnectionOrmEntity>,

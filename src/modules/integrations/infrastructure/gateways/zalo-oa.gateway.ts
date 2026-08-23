@@ -55,9 +55,8 @@ export class ZaloOaGateway implements IMessagingGateway, IOAuthConnectable {
 
   async exchangeCode(code: string): Promise<ExchangedToken> {
     const appId = this.configService.getOrThrow<string>('ZALO_OA_APP_ID');
-    const secretKey = this.configService.getOrThrow<string>(
-      'ZALO_OA_SECRET_KEY',
-    );
+    const secretKey =
+      this.configService.getOrThrow<string>('ZALO_OA_SECRET_KEY');
 
     const body = new URLSearchParams({
       app_id: appId,
@@ -70,9 +69,8 @@ export class ZaloOaGateway implements IMessagingGateway, IOAuthConnectable {
 
   async refreshAccessToken(refreshToken: string): Promise<ExchangedToken> {
     const appId = this.configService.getOrThrow<string>('ZALO_OA_APP_ID');
-    const secretKey = this.configService.getOrThrow<string>(
-      'ZALO_OA_SECRET_KEY',
-    );
+    const secretKey =
+      this.configService.getOrThrow<string>('ZALO_OA_SECRET_KEY');
 
     const body = new URLSearchParams({
       app_id: appId,

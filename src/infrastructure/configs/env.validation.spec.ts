@@ -16,7 +16,8 @@ const baseValidConfig = {
   MOMO_API_ENDPOINT: 'https://example.com',
   ZALO_OA_APP_ID: 'app-id',
   ZALO_OA_SECRET_KEY: 'secret',
-  ZALO_OA_REDIRECT_URI: 'https://api.example.com/api/v1/integrations/zalo-oa/callback',
+  ZALO_OA_REDIRECT_URI:
+    'https://api.example.com/api/v1/integrations/zalo-oa/callback',
   ZALO_OA_STATE_SECRET: 'state-secret',
 };
 
@@ -30,7 +31,7 @@ describe('env.validation — Zalo OA', () => {
   });
 
   it('throws when ZALO_OA_APP_ID is missing', () => {
-    const { ZALO_OA_APP_ID, ...rest } = baseValidConfig;
+    const { ZALO_OA_APP_ID: _ZALO_OA_APP_ID, ...rest } = baseValidConfig;
     expect(() => validateEnv(rest)).toThrow(/Config validation error/);
   });
 });

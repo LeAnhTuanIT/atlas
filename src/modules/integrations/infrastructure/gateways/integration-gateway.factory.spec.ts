@@ -7,8 +7,8 @@ class FakeZaloGateway implements IMessagingGateway {
   getProvider() {
     return IntegrationProviderEnum.ZALO_OA;
   }
-  async sendMessage() {
-    return { externalMessageId: 'fake-msg' };
+  sendMessage() {
+    return Promise.resolve({ externalMessageId: 'fake-msg' });
   }
 }
 

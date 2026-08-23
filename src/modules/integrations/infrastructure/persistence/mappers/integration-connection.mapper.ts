@@ -18,9 +18,7 @@ export class IntegrationConnectionMapper {
     );
   }
 
-  static toOrm(
-    domain: IntegrationConnection,
-  ): IntegrationConnectionOrmEntity {
+  static toOrm(domain: IntegrationConnection): IntegrationConnectionOrmEntity {
     const orm = new IntegrationConnectionOrmEntity();
     orm.uuid = domain.getUuid();
     orm.merchantId = domain.getMerchantId();

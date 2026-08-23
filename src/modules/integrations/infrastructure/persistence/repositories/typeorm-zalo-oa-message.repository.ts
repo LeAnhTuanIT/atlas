@@ -11,9 +11,7 @@ import { ZaloOaMessageOrmEntity } from '../entities/zalo-oa-message.orm-entity';
 import { ZaloOaMessageMapper } from '../mappers/zalo-oa-message.mapper';
 
 @Injectable()
-export class TypeOrmZaloOaMessageRepository
-  implements IZaloOaMessageRepository
-{
+export class TypeOrmZaloOaMessageRepository implements IZaloOaMessageRepository {
   constructor(
     @InjectRepository(ZaloOaMessageOrmEntity)
     private readonly repo: Repository<ZaloOaMessageOrmEntity>,
