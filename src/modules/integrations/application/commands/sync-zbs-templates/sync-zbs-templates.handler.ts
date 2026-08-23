@@ -50,7 +50,7 @@ export class SyncZbsTemplatesHandler {
         await this.templateRepo.save(existing);
         templates.push(existing);
       } else {
-        const created = ZbsTemplate.create({
+        const created = ZbsTemplate.fromSync({
           connectionId: connection.getUuid(),
           templateId: item.templateId,
           templateName: item.templateName,
