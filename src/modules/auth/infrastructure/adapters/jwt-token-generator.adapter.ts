@@ -1,56 +1,73 @@
-// src/modules/auth/infrastructure/adapters/jwt-token-generator.adapter.ts
-import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import type {
+import {
   ITokenGeneratorPort,
   TokenPayload,
   AuthTokens,
-} from '../../application/ports/token-generator.port';
+} from '@/modules/auth/application/ports/token-generator.port';
 
 @Injectable()
 export class JwtTokenGeneratorAdapter implements ITokenGeneratorPort {
-  private readonly logger = new Logger(JwtTokenGeneratorAdapter.name);
-
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
 
+  private getSecretByScope(scope: TokenPayload['scope']): string {
+    switch (scope) {
+      case 'SYSTEM':
+        return (
+          this.configService.get<string>('JWT_SYSTEM_SECRET') ||
+          this.configService.get<string>('JWT_SECRET', 'secret_system')
+        );
+      case 'MERCHANT':
+        return (
+          this.configService.get<string>('JWT_MERCHANT_SECRET') ||
+          this.configService.get<string>('JWT_SECRET', 'secret_merchant')
+        );
+      case 'CUSTOMER':
+        return (
+          this.configService.get<string>('JWT_CUSTOMER_SECRET') ||
+          this.configService.get<string>('JWT_SECRET', 'secret_customer')
+        );
+      default:
+        return this.configService.get<string>('JWT_SECRET', 'secret_default');
+    }
+  }
+
   async generateTokens(payload: TokenPayload): Promise<AuthTokens> {
-    const accessSecret =
-      this.configService.get<string>('JWT_ACCESS_SECRET') || 'access_secret';
-    const refreshSecret =
-      this.configService.get<string>('JWT_REFRESH_SECRET') || 'refresh_secret';
+    const secret = this.getSecretByScope(payload.scope);
 
-    const accessExpiresIn =
-      this.configService.get<string>('JWT_ACCESS_EXPIRES_IN') || '15m';
-    const refreshExpiresIn =
-      this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') || '7d';
-
-    const expiresInSeconds = 15 * 60;
+    // Thời gian sống: 15 phút (900 giây)
+    const accessExpiresIn = 15 * 60; // 900s
+    // Refresh token: 30 ngày
+    const refreshExpiresIn = '30d';
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
-          sub: payload.sub || payload.userId,
+          sub: payload.sub,
+          userId: payload.sub,
+          email: payload.email,
+          phoneOrEmail: payload.phoneOrEmail,
           scope: payload.scope,
           role: payload.role,
           merchantId: payload.merchantId,
         },
         {
-          secret: accessSecret,
-          expiresIn: accessExpiresIn as any,
+          secret,
+          expiresIn: accessExpiresIn, // số nguyên tính bằng giây (900s) hoặc string '15m'
         },
       ),
       this.jwtService.signAsync(
         {
-          sub: payload.sub || payload.userId,
+          sub: payload.sub,
           scope: payload.scope,
         },
         {
-          secret: refreshSecret,
-          expiresIn: refreshExpiresIn as any,
+          secret,
+          expiresIn: refreshExpiresIn,
         },
       ),
     ]);
@@ -58,24 +75,16 @@ export class JwtTokenGeneratorAdapter implements ITokenGeneratorPort {
     return {
       accessToken,
       refreshToken,
-      expiresIn: expiresInSeconds,
+      expiresIn: accessExpiresIn,
     };
   }
 
-  async verifyRefreshToken(refreshToken: string): Promise<any> {
+  async verifyRefreshToken(refreshToken: string, scope: TokenPayload['scope'] = 'SYSTEM'): Promise<any> {
+    const secret = this.getSecretByScope(scope);
     try {
-      const refreshSecret =
-        this.configService.get<string>('JWT_REFRESH_SECRET') ||
-        'refresh_secret';
-
-      return await this.jwtService.verifyAsync(refreshToken, {
-        secret: refreshSecret,
-      });
-    } catch (err: any) {
-      this.logger.warn(`Verify JWT thất bại: ${err?.message}`);
-      throw new UnauthorizedException(
-        'Refresh Token không hợp lệ hoặc đã hết hạn.',
-      );
+      return await this.jwtService.verifyAsync(refreshToken, { secret });
+    } catch {
+      throw new UnauthorizedException('Refresh token không hợp lệ hoặc đã hết hạn');
     }
   }
 }

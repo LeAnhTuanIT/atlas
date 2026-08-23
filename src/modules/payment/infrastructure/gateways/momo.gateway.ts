@@ -35,6 +35,13 @@ export class MoMoGateway implements IPaymentGateway {
       this.configService.getOrThrow<string>('MOMO_API_ENDPOINT')
     ).trim();
 
+    console.log('MOMO Config:', {
+      partnerCode,
+      accessKey,
+      secretKey,
+      endpoint,
+    });
+
     const orderId = String(
       (params as any).orderCode || (params as any).orderId || Date.now(),
     ).trim();

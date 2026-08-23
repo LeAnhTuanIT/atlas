@@ -41,6 +41,9 @@ export interface UnifiedLoginResult {
   };
 }
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 @CommandHandler(UnifiedLoginCommand)
 export class UnifiedLoginHandler implements ICommandHandler<
   UnifiedLoginCommand,
@@ -65,6 +68,8 @@ export class UnifiedLoginHandler implements ICommandHandler<
     const { identifier, password, merchantId } = command;
     const invalidCredentials = () =>
       new UnauthorizedException('Tài khoản hoặc mật khẩu không chính xác');
+
+    const isValidMerchantUuid = merchantId && UUID_REGEX.test(merchantId);
 
     // 1. Thử tài khoản Hệ thống (System)
     const systemUser = await this.systemUserRepository.findOne({
@@ -107,7 +112,7 @@ export class UnifiedLoginHandler implements ICommandHandler<
       where: {
         email: identifier,
         isActive: true,
-        ...(merchantId && { merchantId }),
+        ...(isValidMerchantUuid && { merchantId }),
       },
       select: {
         id: true,
@@ -155,71 +160,69 @@ export class UnifiedLoginHandler implements ICommandHandler<
       };
     }
 
-    // 3. Thử tài khoản Customer (theo SĐT hoặc Email, trong phạm vi merchant)
-    // TODO: merchantId giờ là uuid (merchants.uuid), '1' không còn là giá trị hợp lệ.
-    // Cần thay bằng uuid của merchant mặc định thực tế nếu vẫn muốn giữ fallback này.
-    const customerMerchantId = merchantId || '1';
-    let customer: Customer | null = null;
+    // 3. Thử tài khoản Customer (Chỉ query khi có merchantId hợp lệ dạng UUID)
+    if (isValidMerchantUuid && merchantId) {
+      let customer: Customer | null = null;
 
-    try {
-      customer = await this.customerRepository.findByPhone(
-        customerMerchantId,
-        new PhoneNumber(identifier),
-      );
-    } catch {
-      // Bỏ qua nếu không đúng format SĐT
-    }
-
-    if (!customer) {
       try {
-        customer = await this.customerRepository.findByEmail(
-          customerMerchantId,
-          new Email(identifier),
+        customer = await this.customerRepository.findByPhone(
+          merchantId,
+          new PhoneNumber(identifier),
         );
       } catch {
-        // Bỏ qua nếu không đúng format Email
+        // Bỏ qua nếu không đúng format SĐT
+      }
+
+      if (!customer) {
+        try {
+          customer = await this.customerRepository.findByEmail(
+            merchantId,
+            new Email(identifier),
+          );
+        } catch {
+          // Bỏ qua nếu không đúng format Email
+        }
+      }
+
+      if (customer) {
+        await this.verifyPassword(
+          password,
+          customer.passwordHash,
+          invalidCredentials,
+        );
+
+        const merchant = await this.merchantRepository.findOne({
+          where: { uuid: customer.merchantId },
+        });
+        const tokens = await this.tokenGenerator.generateTokens({
+          sub: customer.id.getValue(),
+          phoneOrEmail: identifier,
+          scope: 'CUSTOMER',
+          merchantId: merchant?.uuid,
+        });
+
+        return {
+          scope: 'CUSTOMER',
+          tokens,
+          user: {
+            id: customer.id.getValue(),
+            email: customer.email?.getValue(),
+            phone: customer.phone?.getValue(),
+            fullName: customer.fullName,
+            role: 'CUSTOMER',
+          },
+          ...(merchant && {
+            merchant: {
+              id: merchant.uuid,
+              code: merchant.code,
+              name: merchant.name,
+              status: merchant.status,
+            },
+          }),
+        };
       }
     }
-
-    if (!customer) {
-      throw invalidCredentials();
-    }
-
-    await this.verifyPassword(
-      password,
-      customer.passwordHash,
-      invalidCredentials,
-    );
-
-    const merchant = await this.merchantRepository.findOne({
-      where: { uuid: customer.merchantId },
-    });
-    const tokens = await this.tokenGenerator.generateTokens({
-      sub: customer.id.getValue(),
-      phoneOrEmail: identifier,
-      scope: 'CUSTOMER',
-      merchantId: merchant?.uuid,
-    });
-
-    return {
-      scope: 'CUSTOMER',
-      tokens,
-      user: {
-        id: customer.id.getValue(),
-        email: customer.email?.getValue(),
-        phone: customer.phone?.getValue(),
-        fullName: customer.fullName,
-        role: 'CUSTOMER',
-      },
-      ...(merchant && {
-        merchant: {
-          id: merchant.uuid,
-          code: merchant.code,
-          name: merchant.name,
-          status: merchant.status,
-        },
-      }),
-    };
+    throw invalidCredentials();
   }
 
   private async verifyPassword(
