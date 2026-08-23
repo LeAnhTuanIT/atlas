@@ -28,6 +28,14 @@ export class TypeOrmZbsTemplateRepository implements IZbsTemplateRepository {
     return orm ? ZbsTemplateMapper.toDomain(orm) : null;
   }
 
+  async findByUuidAndConnection(
+    uuid: string,
+    connectionId: string,
+  ): Promise<ZbsTemplate | null> {
+    const orm = await this.repo.findOne({ where: { uuid, connectionId } });
+    return orm ? ZbsTemplateMapper.toDomain(orm) : null;
+  }
+
   async save(template: ZbsTemplate): Promise<void> {
     const orm = ZbsTemplateMapper.toOrm(template);
     // uuid là business key — tra `id` (PK bigint nội bộ) của bản ghi đã tồn tại
@@ -40,5 +48,9 @@ export class TypeOrmZbsTemplateRepository implements IZbsTemplateRepository {
       orm.id = existing.id;
     }
     await this.repo.save(orm);
+  }
+
+  async softDelete(uuid: string): Promise<void> {
+    await this.repo.softDelete({ uuid });
   }
 }
