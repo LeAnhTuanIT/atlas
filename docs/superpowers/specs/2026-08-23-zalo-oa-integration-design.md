@@ -157,9 +157,14 @@ export interface ExchangedToken {
   accessToken: string;
   refreshToken: string;
   expiresIn: number; // giây
-  externalId: string; // oa_id
 }
 ```
+
+`oa_id` **không** nằm trong response của `exchangeCode` — theo flow OAuth thật của
+Zalo, `oa_id` được Zalo đính kèm trực tiếp vào query string khi redirect về callback
+(`GET .../callback?code=...&oa_id=...&state=...`), tách biệt với token response. Vì
+vậy `LinkZaloOaCommand` nhận `oaId` như một tham số riêng (từ query callback), không
+lấy từ `ExchangedToken`.
 
 `ZaloOaGateway` implement cả hai interface. `IntegrationGatewayFactory.getMessagingGateway(provider)`
 trả về gateway tương ứng (giống `PaymentGatewayFactory`); khi thêm `EsmsGateway` sau
