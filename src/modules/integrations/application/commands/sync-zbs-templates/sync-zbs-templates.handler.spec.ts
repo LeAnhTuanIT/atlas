@@ -53,7 +53,7 @@ describe('SyncZbsTemplatesHandler', () => {
     zaloOaGateway.listTemplates.mockResolvedValueOnce([
       { templateId: 'tpl-1', templateName: 'Tên mới', status: 'ENABLE' },
     ]);
-    const existing = ZbsTemplate.create({
+    const existing = ZbsTemplate.fromSync({
       connectionId: connection.getUuid(),
       templateId: 'tpl-1',
       templateName: 'Tên cũ',

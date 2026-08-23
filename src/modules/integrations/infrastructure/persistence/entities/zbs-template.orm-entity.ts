@@ -12,15 +12,38 @@ export class ZbsTemplateOrmEntity extends BaseOrmEntity {
   @JoinColumn({ name: 'connection_id', referencedColumnName: 'uuid' })
   connection?: IntegrationConnectionOrmEntity;
 
-  @Column({ name: 'template_id', type: 'varchar', length: 100 })
-  templateId: string;
+  // null = draft cục bộ, chưa publish lên Zalo lần nào
+  @Column({ name: 'template_id', type: 'varchar', length: 100, nullable: true })
+  templateId: string | null;
 
   @Column({ name: 'template_name', type: 'varchar', length: 255 })
   templateName: string;
 
+  @Column({ name: 'template_type', type: 'varchar', length: 20 })
+  templateType: string;
+
+  @Column({ type: 'varchar', length: 20 })
+  tag: string;
+
+  // Passthrough nguyên schema Zalo (header/body/footer) — xem ghi chú trong domain entity.
+  @Column({ type: 'jsonb', default: {} })
+  layout: Record<string, any>;
+
+  @Column({ type: 'jsonb', default: [] })
+  params: Array<{ type: string; name: string; sample_value: string }>;
+
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  note: string | null;
+
+  @Column({ name: 'tracking_id', type: 'varchar', length: 100, nullable: true })
+  trackingId: string | null;
+
   @Column({ type: 'varchar', length: 50 })
   status: string;
 
-  @Column({ name: 'synced_at', type: 'timestamptz' })
-  syncedAt: Date;
+  @Column({ type: 'text', nullable: true })
+  reason: string | null;
+
+  @Column({ name: 'synced_at', type: 'timestamptz', nullable: true })
+  syncedAt: Date | null;
 }

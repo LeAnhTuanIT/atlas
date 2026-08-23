@@ -6,10 +6,17 @@ export class ZbsTemplateMapper {
     return new ZbsTemplate(
       orm.uuid,
       orm.connectionId,
-      orm.templateId,
+      orm.templateId ?? undefined,
       orm.templateName,
+      orm.templateType,
+      orm.tag,
+      orm.layout,
+      orm.params,
+      orm.note ?? undefined,
+      orm.trackingId ?? undefined,
       orm.status,
-      orm.syncedAt,
+      orm.reason ?? undefined,
+      orm.syncedAt ?? undefined,
       orm.createdAt,
       orm.updatedAt,
     );
@@ -19,10 +26,17 @@ export class ZbsTemplateMapper {
     const orm = new ZbsTemplateOrmEntity();
     orm.uuid = domain.getUuid();
     orm.connectionId = domain.getConnectionId();
-    orm.templateId = domain.getTemplateId();
+    orm.templateId = domain.getTemplateId() ?? null;
     orm.templateName = domain.getTemplateName();
+    orm.templateType = domain.getTemplateType();
+    orm.tag = domain.getTag();
+    orm.layout = domain.getLayout();
+    orm.params = domain.getParams();
+    orm.note = domain.getNote() ?? null;
+    orm.trackingId = domain.getTrackingId() ?? null;
     orm.status = domain.getStatus();
-    orm.syncedAt = domain.getSyncedAt();
+    orm.reason = domain.getReason() ?? null;
+    orm.syncedAt = domain.getSyncedAt() ?? null;
     return orm;
   }
 }
