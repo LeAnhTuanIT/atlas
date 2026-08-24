@@ -18,14 +18,26 @@ export class CancelTicketOrderHandler {
       throw new NotFoundException('Không tìm thấy đơn vé');
     }
 
+    if (cmd.merchantId && order.getMerchantId() !== cmd.merchantId) {
+      throw new NotFoundException('Không tìm thấy đơn vé');
+    }
+
+    // Chỉ nhả lại quota Redis nếu order thực sự đang PENDING và transition này thực sự xảy ra.
+    // markAsCancelled()/markAsExpired() đã idempotent (silently no-op nếu đã ở trạng thái cuối),
+    // nhưng nếu không chặn ở đây thì một lệnh gọi lặp lại (vd webhook trùng, cron expiry chồng
+    // lấn) vẫn sẽ chạy lại vòng lặp release() bên dưới, nhả lại quota đã được nhả trước đó.
+    const wasPending = order.isPending();
+
     if (cmd.finalStatus === 'EXPIRED') {
       order.markAsExpired();
     } else {
       order.markAsCancelled();
     }
 
-    for (const line of order.getLines()) {
-      await this.availabilityService.release(line.getTicketSessionId(), line.getZoneId(), line.getQuantity());
+    if (wasPending) {
+      for (const line of order.getLines()) {
+        await this.availabilityService.release(line.getTicketSessionId(), line.getZoneId(), line.getQuantity());
+      }
     }
 
     await this.orderRepo.save(order);

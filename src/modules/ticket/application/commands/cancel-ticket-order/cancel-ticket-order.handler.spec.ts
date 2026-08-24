@@ -53,4 +53,28 @@ describe('CancelTicketOrderHandler', () => {
       'Không tìm thấy đơn vé',
     );
   });
+
+  it('order thuộc merchant khác cmd.merchantId -> ném 404 (không tiết lộ tồn tại)', async () => {
+    const order = buildOrder();
+    orderRepo.findById.mockResolvedValueOnce(order);
+
+    await expect(
+      handler.execute(new CancelTicketOrderCommand(order.id, 'CANCELLED', 'merchant-khac')),
+    ).rejects.toThrow('Không tìm thấy đơn vé');
+    expect(availabilityService.release).not.toHaveBeenCalled();
+  });
+
+  it('gọi lần 2 trên order đã CANCELLED: không release lại quota (idempotent)', async () => {
+    const order = buildOrder();
+    orderRepo.findById.mockResolvedValueOnce(order);
+    await handler.execute(new CancelTicketOrderCommand(order.id, 'CANCELLED'));
+    expect(availabilityService.release).toHaveBeenCalledTimes(1);
+
+    jest.clearAllMocks();
+    orderRepo.findById.mockResolvedValueOnce(order);
+    await handler.execute(new CancelTicketOrderCommand(order.id, 'CANCELLED'));
+
+    expect(availabilityService.release).not.toHaveBeenCalled();
+    expect(orderRepo.save).toHaveBeenCalledWith(order);
+  });
 });
