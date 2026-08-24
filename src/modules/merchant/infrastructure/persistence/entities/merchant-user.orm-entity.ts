@@ -19,7 +19,12 @@ export class MerchantUserOrmEntity extends BaseOrmEntity {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'merchant_id', referencedColumnName: 'uuid' })
-  merchant: MerchantOrmEntity;
+  // Typed as `any` (not `MerchantOrmEntity`) to avoid a TDZ crash: emitDecoratorMetadata
+  // emits a synchronous design:type reference on this property, which throws
+  // "Cannot access 'MerchantOrmEntity' before initialization" when this file and
+  // merchant.orm-entity.ts import each other. The lazy `() => MerchantOrmEntity`
+  // decorator thunk above is unaffected; only the property's own type annotation matters.
+  merchant: any;
 
   @Column({ type: 'varchar', length: 255 })
   email: string;

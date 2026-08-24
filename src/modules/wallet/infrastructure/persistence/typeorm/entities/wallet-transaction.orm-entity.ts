@@ -15,14 +15,16 @@ export class WalletTransactionOrmEntity extends BaseOrmEntity {
 
   @ManyToOne(() => WalletOrmEntity, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'wallet_id', referencedColumnName: 'uuid' })
-  wallet: WalletOrmEntity;
+  // Typed `any` (not the concrete class) to avoid an emitDecoratorMetadata TDZ crash
+  // on circular-imported ManyToOne/OneToOne relation properties.
+  wallet: any;
 
   @Column({ name: 'merchant_id', type: 'uuid' })
   merchantId: string;
 
   @ManyToOne(() => MerchantOrmEntity, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'merchant_id', referencedColumnName: 'uuid' })
-  merchant: MerchantOrmEntity;
+  merchant: any;
 
   @Column({
     name: 'transaction_id',

@@ -14,7 +14,9 @@ export class WalletOrmEntity extends BaseOrmEntity {
     onDelete: 'RESTRICT',
   })
   @JoinColumn({ name: 'merchant_id', referencedColumnName: 'uuid' })
-  merchant: MerchantOrmEntity;
+  // Typed `any` (not the concrete class) to avoid an emitDecoratorMetadata TDZ crash
+  // on circular-imported ManyToOne/OneToOne relation properties.
+  merchant: any;
 
   // tiền hiện dùng được
   @Column({

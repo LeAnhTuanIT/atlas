@@ -14,7 +14,12 @@ export class CustomerAddressOrmEntity extends BaseOrmEntity {
 
   @ManyToOne(() => MerchantOrmEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'merchant_id', referencedColumnName: 'uuid' })
-  merchant: MerchantOrmEntity;
+  // Typed as `any` (not `MerchantOrmEntity`) to avoid a TDZ crash: emitDecoratorMetadata
+  // emits a synchronous design:type reference on this property, which throws
+  // "Cannot access 'MerchantOrmEntity' before initialization" under certain module load
+  // orders. The lazy `() => MerchantOrmEntity` decorator thunk above is unaffected; only
+  // the property's own type annotation matters.
+  merchant: any;
 
   @Index()
   @Column({ name: 'customer_id', type: 'uuid', nullable: false })
@@ -24,7 +29,8 @@ export class CustomerAddressOrmEntity extends BaseOrmEntity {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'customer_id', referencedColumnName: 'uuid' })
-  customer: CustomerOrmEntity;
+  // Same TDZ issue as `merchant` above — typed `any` instead of the concrete class.
+  customer: any;
 
   @Column({ name: 'receiver_name', type: 'varchar', length: 150 })
   receiverName: string;

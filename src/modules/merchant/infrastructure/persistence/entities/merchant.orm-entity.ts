@@ -33,6 +33,8 @@ export class MerchantOrmEntity extends BaseOrmEntity {
   customers: CustomerOrmEntity[];
 
   // Chiều nghịch của quan hệ 1-1 — inverse side, không sở hữu cột FK.
+  // Typed `any` (not the concrete class) to avoid an emitDecoratorMetadata TDZ crash
+  // on circular-imported ManyToOne/OneToOne relation properties.
   @OneToOne(() => WalletOrmEntity, (wallet) => wallet.merchant)
-  wallet?: WalletOrmEntity;
+  wallet?: any;
 }

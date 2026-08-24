@@ -10,7 +10,9 @@ export class ZbsTemplateOrmEntity extends BaseOrmEntity {
 
   @ManyToOne(() => IntegrationConnectionOrmEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'connection_id', referencedColumnName: 'uuid' })
-  connection?: IntegrationConnectionOrmEntity;
+  // Typed `any` (not the concrete class) to avoid an emitDecoratorMetadata TDZ crash
+  // on circular-imported ManyToOne/OneToOne relation properties.
+  connection?: any;
 
   // null = draft cục bộ, chưa publish lên Zalo lần nào
   @Column({ name: 'template_id', type: 'varchar', length: 100, nullable: true })

@@ -28,7 +28,9 @@ export class CustomerOrmEntity extends BaseOrmEntity {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'merchant_id', referencedColumnName: 'uuid' })
-  merchant: MerchantOrmEntity;
+  // Typed `any` (not the concrete class) to avoid an emitDecoratorMetadata TDZ crash
+  // on circular-imported ManyToOne/OneToOne relation properties.
+  merchant: any;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
   phone?: string;

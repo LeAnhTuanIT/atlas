@@ -9,7 +9,9 @@ export class TicketZoneOrmEntity extends BaseOrmEntity {
 
   @ManyToOne(() => TicketProductOrmEntity, (p) => p.zones, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'ticket_product_id', referencedColumnName: 'uuid' })
-  ticketProduct?: TicketProductOrmEntity;
+  // Typed `any` (not the concrete class) to avoid an emitDecoratorMetadata TDZ crash
+  // on circular-imported ManyToOne/OneToOne relation properties.
+  ticketProduct?: any;
 
   @Column({ type: 'varchar', length: 255 })
   name: string;

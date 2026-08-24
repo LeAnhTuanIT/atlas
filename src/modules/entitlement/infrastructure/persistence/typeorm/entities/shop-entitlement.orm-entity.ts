@@ -15,14 +15,16 @@ export class ShopEntitlementOrmEntity extends BaseOrmEntity {
 
   @ManyToOne(() => MerchantOrmEntity, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'merchant_id', referencedColumnName: 'uuid' })
-  merchant: MerchantOrmEntity;
+  // Typed `any` (not the concrete class) to avoid an emitDecoratorMetadata TDZ crash
+  // on circular-imported ManyToOne/OneToOne relation properties.
+  merchant: any;
 
   @Column({ name: 'feature_id', type: 'uuid' })
   featureId: string;
 
   @ManyToOne(() => FeatureOrmEntity, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'feature_id', referencedColumnName: 'uuid' })
-  feature: FeatureOrmEntity;
+  feature: any;
 
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean;
