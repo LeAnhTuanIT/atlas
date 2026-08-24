@@ -13,6 +13,7 @@ import { ClsModule } from 'nestjs-cls';
 import { PaymentModule } from './modules/payment/payment.module';
 import { WalletModule } from './modules/wallet/wallet.module';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
+import { TicketModule } from './modules/ticket/ticket.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { IntegrationsModule } from './modules/integrations/integrations.module';
     WalletModule,
     PaymentModule,
     IntegrationsModule,
+    TicketModule,
   ],
 })
 export class AppModule implements NestModule {
