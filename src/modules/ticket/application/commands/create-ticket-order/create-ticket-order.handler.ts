@@ -52,6 +52,12 @@ export class CreateTicketOrderHandler {
           throw new NotFoundException('Loại vé không khả dụng để bán');
         }
 
+        if (product.getMerchantId() !== cmd.merchantId) {
+          // Không tiết lộ rằng loại vé tồn tại nhưng thuộc merchant khác — dùng cùng message
+          // với trường hợp not-found để tránh enumeration.
+          throw new NotFoundException('Loại vé không khả dụng để bán');
+        }
+
         const session = product.findSession(line.ticketSessionId);
         if (!session || !session.isActiveAt(now)) {
           throw new NotFoundException('Suất vé không còn hiệu lực');
@@ -93,6 +99,12 @@ export class CreateTicketOrderHandler {
         lines: orderLines,
       });
 
+      // Lưu order (PENDING, chưa có payment link) trước khi tạo payment link ở cổng thanh
+      // toán. Nếu save() thất bại (lỗi DB, trùng payment_order_code...) thì chưa có payment
+      // URL nào được tạo ra cho một order không tồn tại trong DB — tránh trường hợp khách
+      // thanh toán được một URL sống nhưng không có order nào để xác nhận.
+      await this.orderRepo.save(order);
+
       if (cmd.channel === TicketOrderChannelEnum.ONLINE) {
         if (!cmd.gateway || !cmd.returnUrl) {
           throw new BadRequestException('Đơn vé online phải chỉ định gateway và returnUrl');
@@ -106,6 +118,7 @@ export class CreateTicketOrderHandler {
         });
         paymentUrl = result.paymentUrl;
         order.attachPaymentOrderCode(order.id);
+        await this.orderRepo.save(order);
       }
     } catch (err) {
       for (const hold of reservedForCompensation) {
@@ -113,8 +126,6 @@ export class CreateTicketOrderHandler {
       }
       throw err;
     }
-
-    await this.orderRepo.save(order);
 
     return {
       orderId: order.id,
