@@ -63,19 +63,25 @@ export class MerchantTicketOrderController {
   }
 
   @Post(':id/confirm-payment')
-  async confirmCounterPayment(@Param('id') id: string) {
-    return this.confirmPaymentHandler.execute(new ConfirmTicketOrderPaymentCommand(id));
+  async confirmCounterPayment(@Req() req: MerchantRequest, @Param('id') id: string) {
+    return this.confirmPaymentHandler.execute(
+      new ConfirmTicketOrderPaymentCommand(id, req.user.merchantId),
+    );
   }
 
   @Post(':id/cancel')
-  async cancelPendingOrder(@Param('id') id: string) {
-    await this.cancelOrderHandler.execute(new CancelTicketOrderCommand(id, 'CANCELLED'));
+  async cancelPendingOrder(@Req() req: MerchantRequest, @Param('id') id: string) {
+    await this.cancelOrderHandler.execute(
+      new CancelTicketOrderCommand(id, 'CANCELLED', req.user.merchantId),
+    );
     return { id, status: 'CANCELLED' };
   }
 
   @Post(':id/refund')
-  async cancelPaidOrder(@Param('id') id: string) {
-    await this.cancelPaidOrderHandler.execute(new CancelPaidTicketOrderCommand(id));
+  async cancelPaidOrder(@Req() req: MerchantRequest, @Param('id') id: string) {
+    await this.cancelPaidOrderHandler.execute(
+      new CancelPaidTicketOrderCommand(id, req.user.merchantId),
+    );
     return { id, status: 'CANCELLED' };
   }
 }
