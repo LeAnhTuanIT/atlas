@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Param, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
 import { CustomerAuthGuard, MerchantAuthGuard } from '@/shared/infrastructure/auth/guards/auth-guards.guards';
 import { CreateTicketOrderHandler } from '../../application/commands/create-ticket-order/create-ticket-order.handler';
@@ -50,11 +50,22 @@ export class MerchantTicketOrderController {
     private readonly cancelPaidOrderHandler: CancelPaidTicketOrderHandler,
   ) {}
 
+  // Vé/đơn hàng là dữ liệu theo merchant — nếu JWT hợp lệ về scope nhưng thiếu
+  // claim merchantId (token dị dạng), phải từ chối ngay thay vì âm thầm bỏ qua
+  // bước kiểm tra quyền sở hữu đơn hàng ở tầng handler (fail closed, không fail open).
+  private requireMerchantId(req: MerchantRequest): string {
+    if (!req.user?.merchantId) {
+      throw new UnauthorizedException('Token không có merchantId hợp lệ.');
+    }
+    return req.user.merchantId;
+  }
+
   @Post()
   async createCounterOrder(@Req() req: MerchantRequest, @Body() dto: CreateTicketOrderDto) {
+    const merchantId = this.requireMerchantId(req);
     return this.createOrderHandler.execute(
       new CreateTicketOrderCommand(
-        req.user.merchantId,
+        merchantId,
         TicketOrderChannelEnum.COUNTER,
         undefined,
         dto.lines,
@@ -64,23 +75,26 @@ export class MerchantTicketOrderController {
 
   @Post(':id/confirm-payment')
   async confirmCounterPayment(@Req() req: MerchantRequest, @Param('id') id: string) {
+    const merchantId = this.requireMerchantId(req);
     return this.confirmPaymentHandler.execute(
-      new ConfirmTicketOrderPaymentCommand(id, req.user.merchantId),
+      new ConfirmTicketOrderPaymentCommand(id, merchantId),
     );
   }
 
   @Post(':id/cancel')
   async cancelPendingOrder(@Req() req: MerchantRequest, @Param('id') id: string) {
+    const merchantId = this.requireMerchantId(req);
     await this.cancelOrderHandler.execute(
-      new CancelTicketOrderCommand(id, 'CANCELLED', req.user.merchantId),
+      new CancelTicketOrderCommand(id, 'CANCELLED', merchantId),
     );
     return { id, status: 'CANCELLED' };
   }
 
   @Post(':id/refund')
   async cancelPaidOrder(@Req() req: MerchantRequest, @Param('id') id: string) {
+    const merchantId = this.requireMerchantId(req);
     await this.cancelPaidOrderHandler.execute(
-      new CancelPaidTicketOrderCommand(id, req.user.merchantId),
+      new CancelPaidTicketOrderCommand(id, merchantId),
     );
     return { id, status: 'CANCELLED' };
   }
