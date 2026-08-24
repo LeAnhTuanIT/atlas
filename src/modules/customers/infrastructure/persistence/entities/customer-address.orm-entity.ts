@@ -1,4 +1,5 @@
 import { Entity, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { BaseOrmEntity } from '@/shared/infrastructure/persistence/base.orm-entity';
 import { MerchantOrmEntity } from '@/modules/merchant/infrastructure/persistence/entities/merchant.orm-entity';
 import { CustomerOrmEntity } from './customer.orm-entity';
@@ -14,12 +15,12 @@ export class CustomerAddressOrmEntity extends BaseOrmEntity {
 
   @ManyToOne(() => MerchantOrmEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'merchant_id', referencedColumnName: 'uuid' })
-  // Typed as `any` (not `MerchantOrmEntity`) to avoid a TDZ crash: emitDecoratorMetadata
-  // emits a synchronous design:type reference on this property, which throws
-  // "Cannot access 'MerchantOrmEntity' before initialization" under certain module load
-  // orders. The lazy `() => MerchantOrmEntity` decorator thunk above is unaffected; only
-  // the property's own type annotation matters.
-  merchant: any;
+  // Typed via TypeORM's `Relation<T>` wrapper to avoid a TDZ crash: emitDecoratorMetadata
+  // emits a synchronous design:type reference on a directly-class-typed property, which
+  // throws "Cannot access 'MerchantOrmEntity' before initialization" under certain module
+  // load orders. `Relation<T>` keeps full static typing while emitDecoratorMetadata sees
+  // only `Object`. The lazy `() => MerchantOrmEntity` decorator thunk is unaffected.
+  merchant: Relation<MerchantOrmEntity>;
 
   @Index()
   @Column({ name: 'customer_id', type: 'uuid', nullable: false })
@@ -29,8 +30,8 @@ export class CustomerAddressOrmEntity extends BaseOrmEntity {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'customer_id', referencedColumnName: 'uuid' })
-  // Same TDZ issue as `merchant` above — typed `any` instead of the concrete class.
-  customer: any;
+  // Same TDZ issue as `merchant` above — typed via `Relation<T>` instead of the concrete class.
+  customer: Relation<CustomerOrmEntity>;
 
   @Column({ name: 'receiver_name', type: 'varchar', length: 150 })
   receiverName: string;

@@ -1,4 +1,5 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { BaseOrmEntity } from '@/shared/infrastructure/persistence/base.orm-entity';
 import { TicketOrderOrmEntity } from './ticket-order.orm-entity';
 
@@ -9,7 +10,7 @@ export class TicketOrderLineOrmEntity extends BaseOrmEntity {
 
   @ManyToOne(() => TicketOrderOrmEntity, (o) => o.lines, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'ticket_order_id', referencedColumnName: 'uuid' })
-  ticketOrder?: any;
+  ticketOrder?: Relation<TicketOrderOrmEntity>;
 
   @Column({ name: 'ticket_product_id', type: 'uuid' })
   ticketProductId: string;

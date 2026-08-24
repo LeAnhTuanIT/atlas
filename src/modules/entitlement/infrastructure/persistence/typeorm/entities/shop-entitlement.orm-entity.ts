@@ -1,4 +1,5 @@
 import { Entity, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { BaseOrmEntity } from '@/shared/infrastructure/persistence/base.orm-entity';
 import { MerchantOrmEntity } from '@/modules/merchant/infrastructure/persistence/entities/merchant.orm-entity';
 import { FeatureOrmEntity } from './feature.orm-entity';
@@ -15,16 +16,17 @@ export class ShopEntitlementOrmEntity extends BaseOrmEntity {
 
   @ManyToOne(() => MerchantOrmEntity, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'merchant_id', referencedColumnName: 'uuid' })
-  // Typed `any` (not the concrete class) to avoid an emitDecoratorMetadata TDZ crash
-  // on circular-imported ManyToOne/OneToOne relation properties.
-  merchant: any;
+  // Typed via `Relation<T>` (not the concrete class directly) to avoid an
+  // emitDecoratorMetadata TDZ crash on circular-imported ManyToOne/OneToOne relation
+  // properties, while keeping full static typing.
+  merchant: Relation<MerchantOrmEntity>;
 
   @Column({ name: 'feature_id', type: 'uuid' })
   featureId: string;
 
   @ManyToOne(() => FeatureOrmEntity, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'feature_id', referencedColumnName: 'uuid' })
-  feature: any;
+  feature: Relation<FeatureOrmEntity>;
 
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean;

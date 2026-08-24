@@ -1,5 +1,6 @@
 // src/modules/merchant/infrastructure/persistence/entities/merchant.orm-entity.ts
 import { Entity, Column, OneToMany, OneToOne } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { BaseOrmEntity } from '@/shared/infrastructure/persistence/base.orm-entity';
 import { MerchantStatus } from '@/modules/merchant/domain/models/merchant.aggregate';
 import { MerchantUserOrmEntity } from './merchant-user.orm-entity';
@@ -33,8 +34,9 @@ export class MerchantOrmEntity extends BaseOrmEntity {
   customers: CustomerOrmEntity[];
 
   // Chiều nghịch của quan hệ 1-1 — inverse side, không sở hữu cột FK.
-  // Typed `any` (not the concrete class) to avoid an emitDecoratorMetadata TDZ crash
-  // on circular-imported ManyToOne/OneToOne relation properties.
+  // Typed via `Relation<T>` (not the concrete class directly) to avoid an
+  // emitDecoratorMetadata TDZ crash on circular-imported ManyToOne/OneToOne relation
+  // properties, while keeping full static typing.
   @OneToOne(() => WalletOrmEntity, (wallet) => wallet.merchant)
-  wallet?: any;
+  wallet?: Relation<WalletOrmEntity>;
 }

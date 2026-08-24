@@ -1,4 +1,5 @@
 import { Entity, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { BaseOrmEntity } from '@/shared/infrastructure/persistence/base.orm-entity';
 import { MerchantOrmEntity } from './merchant.orm-entity';
 
@@ -19,12 +20,14 @@ export class MerchantUserOrmEntity extends BaseOrmEntity {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'merchant_id', referencedColumnName: 'uuid' })
-  // Typed as `any` (not `MerchantOrmEntity`) to avoid a TDZ crash: emitDecoratorMetadata
-  // emits a synchronous design:type reference on this property, which throws
-  // "Cannot access 'MerchantOrmEntity' before initialization" when this file and
-  // merchant.orm-entity.ts import each other. The lazy `() => MerchantOrmEntity`
-  // decorator thunk above is unaffected; only the property's own type annotation matters.
-  merchant: any;
+  // Typed via TypeORM's `Relation<T>` wrapper (not `MerchantOrmEntity` directly) to avoid
+  // a TDZ crash: emitDecoratorMetadata emits a synchronous design:type reference on a
+  // directly-class-typed property, which throws "Cannot access 'MerchantOrmEntity' before
+  // initialization" when this file and merchant.orm-entity.ts import each other.
+  // `Relation<T>` is a type-only alias (`= T`) built into TypeORM specifically for this —
+  // it keeps full static typing while emitDecoratorMetadata sees only `Object`, not the
+  // concrete class. The lazy `() => MerchantOrmEntity` decorator thunk is unaffected.
+  merchant: Relation<MerchantOrmEntity>;
 
   @Column({ type: 'varchar', length: 255 })
   email: string;
