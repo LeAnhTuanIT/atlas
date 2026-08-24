@@ -1,5 +1,6 @@
 // src/modules/wallet/infrastructure/persistence/typeorm/entities/wallet-transaction.orm-entity.ts
 import { Entity, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
+import type { Relation } from 'typeorm';
 import {
   TransactionTypeEnum,
   TransactionStatusEnum,
@@ -15,14 +16,17 @@ export class WalletTransactionOrmEntity extends BaseOrmEntity {
 
   @ManyToOne(() => WalletOrmEntity, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'wallet_id', referencedColumnName: 'uuid' })
-  wallet: WalletOrmEntity;
+  // Typed via `Relation<T>` (not the concrete class directly) to avoid an
+  // emitDecoratorMetadata TDZ crash on circular-imported ManyToOne/OneToOne relation
+  // properties, while keeping full static typing.
+  wallet: Relation<WalletOrmEntity>;
 
   @Column({ name: 'merchant_id', type: 'uuid' })
   merchantId: string;
 
   @ManyToOne(() => MerchantOrmEntity, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'merchant_id', referencedColumnName: 'uuid' })
-  merchant: MerchantOrmEntity;
+  merchant: Relation<MerchantOrmEntity>;
 
   @Column({
     name: 'transaction_id',

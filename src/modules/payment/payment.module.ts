@@ -39,6 +39,6 @@ import { AuthModule } from '../auth/auth.module';
       useClass: PaymentOrderTypeormRepository,
     },
   ],
-  exports: [CreateDepositOrderHandler, ProcessPaymentWebhookHandler],
+  exports: [CreateDepositOrderHandler, ProcessPaymentWebhookHandler, PaymentGatewayFactory],
 })
 export class PaymentModule {}

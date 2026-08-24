@@ -2,6 +2,7 @@
 import { BaseOrmEntity } from '@/shared/infrastructure/persistence/base.orm-entity';
 import { MerchantOrmEntity } from '@/modules/merchant/infrastructure/persistence/entities/merchant.orm-entity';
 import { Entity, Column, Index, OneToOne, JoinColumn } from 'typeorm';
+import type { Relation } from 'typeorm';
 
 @Entity('wallets')
 export class WalletOrmEntity extends BaseOrmEntity {
@@ -14,7 +15,10 @@ export class WalletOrmEntity extends BaseOrmEntity {
     onDelete: 'RESTRICT',
   })
   @JoinColumn({ name: 'merchant_id', referencedColumnName: 'uuid' })
-  merchant: MerchantOrmEntity;
+  // Typed via `Relation<T>` (not the concrete class directly) to avoid an
+  // emitDecoratorMetadata TDZ crash on circular-imported ManyToOne/OneToOne relation
+  // properties, while keeping full static typing.
+  merchant: Relation<MerchantOrmEntity>;
 
   // tiền hiện dùng được
   @Column({

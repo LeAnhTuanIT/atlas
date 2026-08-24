@@ -7,6 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { BaseOrmEntity } from '@/shared/infrastructure/persistence/base.orm-entity';
 import { MerchantOrmEntity } from '@/modules/merchant/infrastructure/persistence/entities/merchant.orm-entity';
 import { CustomerAddressOrmEntity } from './customer-address.orm-entity';
@@ -28,7 +29,10 @@ export class CustomerOrmEntity extends BaseOrmEntity {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'merchant_id', referencedColumnName: 'uuid' })
-  merchant: MerchantOrmEntity;
+  // Typed via `Relation<T>` (not the concrete class directly) to avoid an
+  // emitDecoratorMetadata TDZ crash on circular-imported ManyToOne/OneToOne relation
+  // properties, while keeping full static typing.
+  merchant: Relation<MerchantOrmEntity>;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
   phone?: string;

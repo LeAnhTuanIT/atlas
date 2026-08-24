@@ -1,5 +1,6 @@
 // src/modules/payment/infrastructure/persistence/typeorm/entities/payment-order.orm-entity.ts
 import { Entity, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { BaseOrmEntity } from '@/shared/infrastructure/persistence/base.orm-entity';
 import { MerchantOrmEntity } from '@/modules/merchant/infrastructure/persistence/entities/merchant.orm-entity';
 import {
@@ -21,7 +22,10 @@ export class PaymentOrderOrmEntity extends BaseOrmEntity {
 
   @ManyToOne(() => MerchantOrmEntity, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'merchant_id', referencedColumnName: 'uuid' })
-  merchant: MerchantOrmEntity;
+  // Typed via `Relation<T>` (not the concrete class directly) to avoid an
+  // emitDecoratorMetadata TDZ crash on circular-imported ManyToOne/OneToOne relation
+  // properties, while keeping full static typing.
+  merchant: Relation<MerchantOrmEntity>;
 
   @Column({
     type: 'bigint',

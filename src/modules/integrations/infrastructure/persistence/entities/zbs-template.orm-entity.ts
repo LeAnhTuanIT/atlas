@@ -1,4 +1,5 @@
 import { Entity, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { BaseOrmEntity } from '@/shared/infrastructure/persistence/base.orm-entity';
 import { IntegrationConnectionOrmEntity } from './integration-connection.orm-entity';
 
@@ -10,7 +11,10 @@ export class ZbsTemplateOrmEntity extends BaseOrmEntity {
 
   @ManyToOne(() => IntegrationConnectionOrmEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'connection_id', referencedColumnName: 'uuid' })
-  connection?: IntegrationConnectionOrmEntity;
+  // Typed via `Relation<T>` (not the concrete class directly) to avoid an
+  // emitDecoratorMetadata TDZ crash on circular-imported ManyToOne/OneToOne relation
+  // properties, while keeping full static typing.
+  connection?: Relation<IntegrationConnectionOrmEntity>;
 
   // null = draft cục bộ, chưa publish lên Zalo lần nào
   @Column({ name: 'template_id', type: 'varchar', length: 100, nullable: true })
