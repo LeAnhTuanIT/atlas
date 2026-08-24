@@ -9,7 +9,7 @@ export class TicketOrderLineOrmEntity extends BaseOrmEntity {
 
   @ManyToOne(() => TicketOrderOrmEntity, (o) => o.lines, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'ticket_order_id', referencedColumnName: 'uuid' })
-  ticketOrder?: TicketOrderOrmEntity;
+  ticketOrder?: any;
 
   @Column({ name: 'ticket_product_id', type: 'uuid' })
   ticketProductId: string;
