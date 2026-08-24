@@ -4,6 +4,7 @@ import type { ITicketOrderRepository } from '@/modules/ticket/domain/repositorie
 import { TICKET_ORDER_REPOSITORY } from '@/modules/ticket/domain/repositories/ticket-order.repository.interface';
 import type { ITicketRepository } from '@/modules/ticket/domain/repositories/ticket.repository.interface';
 import { TICKET_REPOSITORY } from '@/modules/ticket/domain/repositories/ticket.repository.interface';
+import { TicketOrderStatusEnum } from '@/modules/ticket/domain/value-objects/ticket-enums.vo';
 import { TicketZoneOrmEntity } from '@/modules/ticket/infrastructure/persistence/typeorm/entities/ticket-zone.orm-entity';
 import { TicketOrderOrmEntity } from '@/modules/ticket/infrastructure/persistence/typeorm/entities/ticket-order.orm-entity';
 import { TicketOrmEntity } from '@/modules/ticket/infrastructure/persistence/typeorm/entities/ticket.orm-entity';
@@ -25,12 +26,29 @@ export class CancelPaidTicketOrderHandler {
       throw new NotFoundException('Không tìm thấy đơn vé');
     }
 
+    if (cmd.merchantId && order.getMerchantId() !== cmd.merchantId) {
+      throw new NotFoundException('Không tìm thấy đơn vé');
+    }
+
     // Ném lỗi trước khi mở transaction nếu order chưa PAID (đúng ngữ nghĩa domain).
     order.cancelPaidOrder();
 
     const tickets = await this.ticketRepo.findByOrderId(order.id);
 
     await this.dataSource.transaction(async (manager) => {
+      // Conditional update là "cửa" chống trùng lặp cho các lệnh hoàn tiền/huỷ gọi đồng thời:
+      // chỉ lệnh nào thực sự chuyển được PAID -> CANCELLED mới được phép cộng lại quota và huỷ vé.
+      const claimed = await manager.update(
+        TicketOrderOrmEntity,
+        { uuid: order.id, status: TicketOrderStatusEnum.PAID },
+        { status: TicketOrderStatusEnum.CANCELLED },
+      );
+
+      if (claimed.affected === 0) {
+        // Đã được huỷ/hoàn tiền bởi một lệnh gọi đồng thời khác — không làm gì thêm.
+        return;
+      }
+
       for (const line of order.getLines()) {
         await manager
           .createQueryBuilder()
@@ -47,8 +65,6 @@ export class CancelPaidTicketOrderHandler {
           { status: 'CANCELLED' },
         );
       }
-
-      await manager.update(TicketOrderOrmEntity, { uuid: order.id }, { status: order.getStatus() });
     });
   }
 }

@@ -31,6 +31,7 @@ describe('CancelPaidTicketOrderHandler', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     dataSource.transaction.mockImplementation((cb: any) => cb(manager));
+    manager.update.mockResolvedValue({ affected: 1 });
     manager.createQueryBuilder.mockReturnValue({
       update: jest.fn().mockReturnThis(),
       set: jest.fn().mockReturnThis(),
@@ -39,7 +40,7 @@ describe('CancelPaidTicketOrderHandler', () => {
     });
   });
 
-  it('huỷ đơn PAID: huỷ tất cả vé + cộng lại quota thật cho từng zone', async () => {
+  it('huỷ đơn PAID: chốt PAID->CANCELLED bằng conditional update, huỷ tất cả vé + cộng lại quota thật cho từng zone', async () => {
     const order = buildPaidOrder();
     orderRepo.findById.mockResolvedValueOnce(order);
     ticketRepo.findByOrderId.mockResolvedValueOnce([]);
@@ -47,6 +48,11 @@ describe('CancelPaidTicketOrderHandler', () => {
     await handler.execute(new CancelPaidTicketOrderCommand(order.id));
 
     expect(order.getStatus()).toBe('CANCELLED');
+    expect(manager.update).toHaveBeenCalledWith(
+      expect.anything(),
+      { uuid: order.id, status: 'PAID' },
+      { status: 'CANCELLED' },
+    );
     expect(manager.createQueryBuilder).toHaveBeenCalledTimes(1);
   });
 
@@ -63,5 +69,27 @@ describe('CancelPaidTicketOrderHandler', () => {
     await expect(handler.execute(new CancelPaidTicketOrderCommand(order.id))).rejects.toThrow(
       'Chỉ có thể huỷ đơn đã PAID bằng phương thức này',
     );
+  });
+
+  it('order thuộc merchant khác cmd.merchantId -> ném 404 (không tiết lộ tồn tại)', async () => {
+    const order = buildPaidOrder();
+    orderRepo.findById.mockResolvedValueOnce(order);
+
+    await expect(
+      handler.execute(new CancelPaidTicketOrderCommand(order.id, 'merchant-khac')),
+    ).rejects.toThrow('Không tìm thấy đơn vé');
+    expect(dataSource.transaction).not.toHaveBeenCalled();
+  });
+
+  it('conditional update báo affected=0 (đã bị huỷ/hoàn tiền bởi lệnh gọi đồng thời khác) -> không cộng lại quota/huỷ vé', async () => {
+    const order = buildPaidOrder();
+    orderRepo.findById.mockResolvedValueOnce(order);
+    ticketRepo.findByOrderId.mockResolvedValueOnce([{ id: 't1' }]);
+    manager.update.mockResolvedValue({ affected: 0 });
+
+    await handler.execute(new CancelPaidTicketOrderCommand(order.id));
+
+    expect(manager.createQueryBuilder).not.toHaveBeenCalled();
+    expect(manager.update).toHaveBeenCalledTimes(1);
   });
 });
