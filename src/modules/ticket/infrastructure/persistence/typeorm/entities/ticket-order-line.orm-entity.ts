@@ -1,17 +1,13 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseOrmEntity } from '@/shared/infrastructure/persistence/base.orm-entity';
-import type { TicketOrderOrmEntity } from './ticket-order.orm-entity';
+import { TicketOrderOrmEntity } from './ticket-order.orm-entity';
 
 @Entity({ name: 'ticket_order_lines' })
 export class TicketOrderLineOrmEntity extends BaseOrmEntity {
   @Column({ name: 'ticket_order_id', type: 'uuid' })
   ticketOrderId: string;
 
-  @ManyToOne(
-    () => require('./ticket-order.orm-entity').TicketOrderOrmEntity as any,
-    (o: any) => o.lines,
-    { onDelete: 'CASCADE' },
-  )
+  @ManyToOne(() => TicketOrderOrmEntity, (o) => o.lines, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'ticket_order_id', referencedColumnName: 'uuid' })
   ticketOrder?: TicketOrderOrmEntity;
 
