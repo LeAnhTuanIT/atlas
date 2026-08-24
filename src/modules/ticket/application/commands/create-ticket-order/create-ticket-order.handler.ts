@@ -42,6 +42,9 @@ export class CreateTicketOrderHandler {
     }[] = [];
     const reservedForCompensation: { sessionId: string; zoneId: string; quantity: number }[] = [];
 
+    let order: TicketOrder;
+    let paymentUrl: string | undefined;
+
     try {
       for (const line of cmd.lines) {
         const product = await this.productRepo.findPublishedById(line.ticketProductId);
@@ -82,34 +85,33 @@ export class CreateTicketOrderHandler {
           unitPrice: product.getPriceAmount(),
         });
       }
+
+      order = TicketOrder.create({
+        merchantId: cmd.merchantId,
+        channel: cmd.channel,
+        buyerId: cmd.buyerId,
+        lines: orderLines,
+      });
+
+      if (cmd.channel === TicketOrderChannelEnum.ONLINE) {
+        if (!cmd.gateway || !cmd.returnUrl) {
+          throw new BadRequestException('Đơn vé online phải chỉ định gateway và returnUrl');
+        }
+        const gatewayService = this.gatewayFactory.get(cmd.gateway);
+        const result = await gatewayService.createPaymentUrl({
+          orderCode: order.id,
+          amount: order.getTotalAmount(),
+          description: `Thanh toan don ve ${order.id}`,
+          returnUrl: cmd.returnUrl,
+        });
+        paymentUrl = result.paymentUrl;
+        order.attachPaymentOrderCode(order.id);
+      }
     } catch (err) {
       for (const hold of reservedForCompensation) {
         await this.availabilityService.release(hold.sessionId, hold.zoneId, hold.quantity);
       }
       throw err;
-    }
-
-    const order = TicketOrder.create({
-      merchantId: cmd.merchantId,
-      channel: cmd.channel,
-      buyerId: cmd.buyerId,
-      lines: orderLines,
-    });
-
-    let paymentUrl: string | undefined;
-    if (cmd.channel === TicketOrderChannelEnum.ONLINE) {
-      if (!cmd.gateway || !cmd.returnUrl) {
-        throw new BadRequestException('Đơn vé online phải chỉ định gateway và returnUrl');
-      }
-      const gatewayService = this.gatewayFactory.get(cmd.gateway);
-      const result = await gatewayService.createPaymentUrl({
-        orderCode: order.id,
-        amount: order.getTotalAmount(),
-        description: `Thanh toan don ve ${order.id}`,
-        returnUrl: cmd.returnUrl,
-      });
-      paymentUrl = result.paymentUrl;
-      order.attachPaymentOrderCode(order.id);
     }
 
     await this.orderRepo.save(order);

@@ -139,4 +139,34 @@ describe('CreateTicketOrderHandler', () => {
     expect(availabilityService.release).toHaveBeenCalledWith(sessionId, zoneId, 1);
     expect(orderRepo.save).not.toHaveBeenCalled();
   });
+
+  it('kênh ONLINE: giữ chỗ thành công nhưng tạo payment link thất bại -> nhả lại các dòng đã giữ và ném lỗi', async () => {
+    const product = buildProduct();
+    productRepo.findPublishedById.mockResolvedValue(product);
+    availabilityService.reserve.mockResolvedValueOnce(true).mockResolvedValueOnce(true);
+    gateway.createPaymentUrl.mockRejectedValueOnce(new Error('Cổng thanh toán không phản hồi'));
+
+    const zoneId = product.getZones()[0].getId();
+    const sessionId = product.getSessions()[0].getId();
+
+    await expect(
+      handler.execute(
+        new CreateTicketOrderCommand(
+          'merchant-1',
+          TicketOrderChannelEnum.ONLINE,
+          'customer-1',
+          [
+            { ticketProductId: product.id, ticketSessionId: sessionId, zoneId, quantity: 1 },
+            { ticketProductId: product.id, ticketSessionId: sessionId, zoneId, quantity: 1 },
+          ],
+          PaymentGatewayEnum.PAYOS,
+          'https://frontend.example/return',
+        ),
+      ),
+    ).rejects.toThrow('Cổng thanh toán không phản hồi');
+
+    expect(availabilityService.release).toHaveBeenCalledTimes(2);
+    expect(availabilityService.release).toHaveBeenCalledWith(sessionId, zoneId, 1);
+    expect(orderRepo.save).not.toHaveBeenCalled();
+  });
 });
