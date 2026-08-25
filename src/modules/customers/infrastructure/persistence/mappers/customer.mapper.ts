@@ -15,6 +15,7 @@ export class CustomerMapper {
       passwordHash: entity.passwordHash,
       status: entity.status,
       loyaltyPoints: entity.loyaltyPoints ?? 0,
+      zaloUid: entity.zaloUid ?? undefined,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     });
@@ -30,6 +31,7 @@ export class CustomerMapper {
     entity.passwordHash = domain.passwordHash;
     entity.status = domain.status;
     entity.loyaltyPoints = domain.loyaltyPoints;
+    entity.zaloUid = domain.zaloUid;
     entity.createdAt = domain.createdAt;
     entity.updatedAt = domain.updatedAt;
     return entity;

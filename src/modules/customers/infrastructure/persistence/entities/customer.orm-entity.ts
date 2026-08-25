@@ -58,6 +58,9 @@ export class CustomerOrmEntity extends BaseOrmEntity {
   @Column({ name: 'loyalty_points', type: 'int', default: 0 })
   loyaltyPoints: number;
 
+  @Column({ name: 'zalo_uid', type: 'varchar', length: 100, nullable: true })
+  zaloUid?: string;
+
   @OneToMany(() => CustomerAddressOrmEntity, (address) => address.customer)
   addresses: CustomerAddressOrmEntity[];
 }
