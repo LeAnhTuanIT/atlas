@@ -19,6 +19,10 @@ export enum CustomerStatus {
 @Entity({ name: 'customers' })
 @Index(['merchantId', 'phone'], { unique: true })
 @Index(['merchantId', 'email'], { unique: true })
+@Index('UQ_customers_merchant_zalo_uid', ['merchantId', 'zaloUid'], {
+  unique: true,
+  where: '"zalo_uid" IS NOT NULL',
+})
 export class CustomerOrmEntity extends BaseOrmEntity {
   @Index()
   @Column({ name: 'merchant_id', type: 'uuid', nullable: false })
