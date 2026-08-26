@@ -59,6 +59,16 @@ export class CustomerTypeOrmRepository implements ICustomerRepository {
     return entity ? CustomerMapper.toDomain(entity) : null;
   }
 
+  async findByZaloUid(
+    merchantId: string,
+    zaloUid: string,
+  ): Promise<Customer | null> {
+    const entity = await this.repo.findOne({
+      where: { merchantId, zaloUid },
+    });
+    return entity ? CustomerMapper.toDomain(entity) : null;
+  }
+
   async findPaginated(
     merchantId: string,
     params: CustomerFilterParams,
@@ -75,6 +85,13 @@ export class CustomerTypeOrmRepository implements ICustomerRepository {
       qb.andWhere(
         '(c.fullName ILIKE :search OR c.phone ILIKE :search OR c.email ILIKE :search)',
         { search: `%${params.search}%` },
+      );
+    }
+
+    if (params.tagId) {
+      qb.andWhere(
+        'EXISTS (SELECT 1 FROM customer_tag_assignments cta WHERE cta.customer_id = c.uuid AND cta.tag_id = :tagId)',
+        { tagId: params.tagId },
       );
     }
 

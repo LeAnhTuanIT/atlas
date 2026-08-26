@@ -74,6 +74,11 @@ export class Customer extends AggregateRoot {
     return new Customer(props);
   }
 
+  linkZaloAccount(zaloUid: string): void {
+    this.props.zaloUid = zaloUid;
+    this.props.updatedAt = new Date();
+  }
+
   updateProfile(fullName: string, phone?: PhoneNumber, email?: Email): void {
     this.props.fullName = fullName;
     this.props.phone = phone;
