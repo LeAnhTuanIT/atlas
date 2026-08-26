@@ -19,6 +19,8 @@ import { UnifiedLoginDto } from '../../application/dtos/unified-login.dto';
 import { UnifiedLoginCommand } from '../../application/commands/unified-login/unified-login.command';
 import type { UnifiedLoginResult } from '../../application/commands/unified-login/unified-login.handler';
 import { RefreshTokenCommand } from '../../application/commands/refresh-token/refresh-token.command';
+import { ZaloMiniAppLoginDto } from '../../application/dtos/zalo-miniapp-login.dto';
+import { ZaloMiniAppLoginCommand } from '../../application/commands/zalo-miniapp-login/zalo-miniapp-login.command';
 
 const SCOPE_COOKIE_KEYS = {
   SYSTEM: {
@@ -53,6 +55,37 @@ export class AuthController {
       UnifiedLoginResult
     >(new UnifiedLoginCommand(dto.identifier, dto.password, dto.merchantId));
 
+    return this.respondWithAuthResult(result, res);
+  }
+
+  // Zalo Mini App WebView không xử lý ổn định cookie cross-domain — route này
+  // trả accessToken/refreshToken thẳng trong body thay vì set cookie như các
+  // scope khác, để FE tự lưu và gắn Authorization header.
+  @Post('zalo-miniapp/login')
+  @HttpCode(HttpStatus.OK)
+  async zaloMiniAppLogin(@Body() dto: ZaloMiniAppLoginDto) {
+    const result = await this.commandBus.execute<
+      ZaloMiniAppLoginCommand,
+      UnifiedLoginResult
+    >(
+      new ZaloMiniAppLoginCommand(
+        dto.zaloMiniAppId,
+        dto.uid,
+        dto.accessToken,
+        dto.phoneToken,
+      ),
+    );
+
+    return {
+      scope: result.scope,
+      user: result.user,
+      accessToken: result.tokens.accessToken,
+      refreshToken: result.tokens.refreshToken,
+      ...(result.merchant && { merchant: result.merchant }),
+    };
+  }
+
+  private respondWithAuthResult(result: UnifiedLoginResult, res: Response) {
     const cookieKeys = SCOPE_COOKIE_KEYS[result.scope];
     CookieUtil.setAuthCookies(
       res,

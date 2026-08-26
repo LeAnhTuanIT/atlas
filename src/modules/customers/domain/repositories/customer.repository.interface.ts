@@ -10,6 +10,7 @@ export interface CustomerFilterParams {
   limit?: number;
   search?: string;
   status?: string;
+  tagId?: string;
 }
 
 export interface CustomerPaginatedResult {
@@ -24,6 +25,7 @@ export interface ICustomerRepository {
   findById(merchantId: string, id: CustomerId): Promise<Customer | null>;
   findByPhone(merchantId: string, phone: PhoneNumber): Promise<Customer | null>;
   findByEmail(merchantId: string, email: Email): Promise<Customer | null>;
+  findByZaloUid(merchantId: string, zaloUid: string): Promise<Customer | null>;
   findPaginated(
     merchantId: string,
     params: CustomerFilterParams,

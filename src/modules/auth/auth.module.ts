@@ -21,7 +21,9 @@ import { CustomerJwtStrategy } from '@/shared/infrastructure/auth/strategies/cus
 import { UnifiedLoginHandler } from './application/commands/unified-login/unified-login.handler';
 import { AuthController } from './presentation/http/auth.controller';
 import { CustomersModule } from '../customers/customers.module';
+import { IntegrationsModule } from '../integrations/integrations.module';
 import { RefreshTokenHandler } from './application/commands/refresh-token/refresh-token.handler';
+import { ZaloMiniAppLoginHandler } from './application/commands/zalo-miniapp-login/zalo-miniapp-login.handler';
 
 @Module({
   imports: [
@@ -35,6 +37,7 @@ import { RefreshTokenHandler } from './application/commands/refresh-token/refres
       CustomerOrmEntity,
     ]),
     CustomersModule,
+    IntegrationsModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -43,6 +46,7 @@ import { RefreshTokenHandler } from './application/commands/refresh-token/refres
     CustomerJwtStrategy,
     UnifiedLoginHandler,
     RefreshTokenHandler,
+    ZaloMiniAppLoginHandler,
     {
       provide: PASSWORD_HASHER_PORT,
       useClass: BcryptPasswordHasherAdapter,

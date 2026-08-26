@@ -18,6 +18,7 @@ export interface CustomerProps {
   passwordHash?: string;
   status: CustomerStatus;
   loyaltyPoints: number;
+  zaloUid?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,6 +36,7 @@ export class Customer extends AggregateRoot {
     fullName: string;
     passwordHash?: string;
     loyaltyPoints?: number;
+    zaloUid?: string;
   }): Customer {
     if (!payload.phone && !payload.email) {
       throw new Error('Khách hàng phải có ít nhất số điện thoại hoặc email');
@@ -50,6 +52,7 @@ export class Customer extends AggregateRoot {
       passwordHash: payload.passwordHash,
       status: CustomerStatus.ACTIVE,
       loyaltyPoints: payload.loyaltyPoints ?? 0,
+      zaloUid: payload.zaloUid,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -69,6 +72,11 @@ export class Customer extends AggregateRoot {
 
   static reconstitute(props: CustomerProps): Customer {
     return new Customer(props);
+  }
+
+  linkZaloAccount(zaloUid: string): void {
+    this.props.zaloUid = zaloUid;
+    this.props.updatedAt = new Date();
   }
 
   updateProfile(fullName: string, phone?: PhoneNumber, email?: Email): void {
@@ -126,6 +134,9 @@ export class Customer extends AggregateRoot {
   }
   get loyaltyPoints(): number {
     return this.props.loyaltyPoints;
+  }
+  get zaloUid(): string | undefined {
+    return this.props.zaloUid;
   }
   get createdAt(): Date {
     return this.props.createdAt;
