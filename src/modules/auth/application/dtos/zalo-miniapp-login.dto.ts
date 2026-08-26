@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class ZaloMiniAppLoginDto {
   @IsNotEmpty({ message: 'zaloMiniAppId không được để trống' })
@@ -13,7 +13,9 @@ export class ZaloMiniAppLoginDto {
   @IsString()
   accessToken: string;
 
-  @IsNotEmpty({ message: 'phoneToken không được để trống' })
+  // Chỉ bắt buộc khi customer chưa từng đăng nhập Zalo lần nào (chưa có
+  // zaloUid liên kết) — lần đăng nhập sau không cần xin lại quyền SĐT.
+  @IsOptional()
   @IsString()
-  phoneToken: string;
+  phoneToken?: string;
 }

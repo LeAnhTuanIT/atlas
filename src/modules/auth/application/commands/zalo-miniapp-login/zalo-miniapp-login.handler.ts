@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
   ForbiddenException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -60,16 +61,24 @@ export class ZaloMiniAppLoginHandler
     }
     const realUid = profile.uid;
 
-    const rawPhone = await this.zaloGateway.getPhoneNumber(
-      accessToken,
-      phoneToken,
-      zaloAppSecret,
-    );
-    const phone = new PhoneNumber(rawPhone);
-
     let customer = await this.customerRepository.findByZaloUid(merchantId, realUid);
 
     if (!customer) {
+      // Khách chưa từng đăng nhập Zalo lần nào (chưa có zaloUid liên kết) —
+      // bắt buộc phải có phoneToken để định danh/tạo mới customer.
+      if (!phoneToken) {
+        throw new BadRequestException(
+          'Cần cấp quyền số điện thoại cho lần đăng nhập Zalo đầu tiên.',
+        );
+      }
+
+      const rawPhone = await this.zaloGateway.getPhoneNumber(
+        accessToken,
+        phoneToken,
+        zaloAppSecret,
+      );
+      const phone = new PhoneNumber(rawPhone);
+
       const byPhone = await this.customerRepository.findByPhone(merchantId, phone);
       if (byPhone) {
         if (byPhone.zaloUid && byPhone.zaloUid !== realUid) {

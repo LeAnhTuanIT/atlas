@@ -2,6 +2,7 @@ import {
   UnauthorizedException,
   ForbiddenException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { ZaloMiniAppLoginHandler } from './zalo-miniapp-login.handler';
 import { ZaloMiniAppLoginCommand } from './zalo-miniapp-login.command';
@@ -140,6 +141,46 @@ describe('ZaloMiniAppLoginHandler', () => {
     expect(savedCustomer.zaloUid).toBe('zalo-uid-1');
     expect(savedCustomer.phone.getValue()).toBe('+84912345678');
     expect(result.scope).toBe('CUSTOMER');
+  });
+
+  it('đăng nhập thành công không cần phoneToken khi customer đã có zaloUid khớp', async () => {
+    const commandWithoutPhone = new ZaloMiniAppLoginCommand(
+      'mini-app-123',
+      'zalo-uid-1',
+      'acc-token',
+    );
+    const existing = Customer.reconstitute({
+      id: new CustomerId(),
+      merchantId: 'merchant-1',
+      phone: new PhoneNumber('0912345678'),
+      fullName: 'Nguyễn Văn A',
+      status: CustomerStatus.ACTIVE,
+      loyaltyPoints: 0,
+      zaloUid: 'zalo-uid-1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    customerRepo.findByZaloUid.mockResolvedValueOnce(existing);
+
+    const result = await handler.execute(commandWithoutPhone);
+
+    expect(gateway.getPhoneNumber).not.toHaveBeenCalled();
+    expect(result.user.id).toBe(existing.id.getValue());
+  });
+
+  it('ném BadRequestException khi customer chưa tồn tại và không có phoneToken', async () => {
+    const commandWithoutPhone = new ZaloMiniAppLoginCommand(
+      'mini-app-123',
+      'zalo-uid-1',
+      'acc-token',
+    );
+    customerRepo.findByZaloUid.mockResolvedValueOnce(null);
+
+    await expect(handler.execute(commandWithoutPhone)).rejects.toThrow(
+      BadRequestException,
+    );
+    expect(gateway.getPhoneNumber).not.toHaveBeenCalled();
+    expect(customerRepo.save).not.toHaveBeenCalled();
   });
 
   it('ném ForbiddenException khi customer đã BLOCKED', async () => {

@@ -58,12 +58,12 @@ export class AuthController {
     return this.respondWithAuthResult(result, res);
   }
 
+  // Zalo Mini App WebView không xử lý ổn định cookie cross-domain — route này
+  // trả accessToken/refreshToken thẳng trong body thay vì set cookie như các
+  // scope khác, để FE tự lưu và gắn Authorization header.
   @Post('zalo-miniapp/login')
   @HttpCode(HttpStatus.OK)
-  async zaloMiniAppLogin(
-    @Body() dto: ZaloMiniAppLoginDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async zaloMiniAppLogin(@Body() dto: ZaloMiniAppLoginDto) {
     const result = await this.commandBus.execute<
       ZaloMiniAppLoginCommand,
       UnifiedLoginResult
@@ -76,7 +76,13 @@ export class AuthController {
       ),
     );
 
-    return this.respondWithAuthResult(result, res);
+    return {
+      scope: result.scope,
+      user: result.user,
+      accessToken: result.tokens.accessToken,
+      refreshToken: result.tokens.refreshToken,
+      ...(result.merchant && { merchant: result.merchant }),
+    };
   }
 
   private respondWithAuthResult(result: UnifiedLoginResult, res: Response) {
