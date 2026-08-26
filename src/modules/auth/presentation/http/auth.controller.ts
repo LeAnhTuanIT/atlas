@@ -19,6 +19,8 @@ import { UnifiedLoginDto } from '../../application/dtos/unified-login.dto';
 import { UnifiedLoginCommand } from '../../application/commands/unified-login/unified-login.command';
 import type { UnifiedLoginResult } from '../../application/commands/unified-login/unified-login.handler';
 import { RefreshTokenCommand } from '../../application/commands/refresh-token/refresh-token.command';
+import { ZaloMiniAppLoginDto } from '../../application/dtos/zalo-miniapp-login.dto';
+import { ZaloMiniAppLoginCommand } from '../../application/commands/zalo-miniapp-login/zalo-miniapp-login.command';
 
 const SCOPE_COOKIE_KEYS = {
   SYSTEM: {
@@ -53,6 +55,31 @@ export class AuthController {
       UnifiedLoginResult
     >(new UnifiedLoginCommand(dto.identifier, dto.password, dto.merchantId));
 
+    return this.respondWithAuthResult(result, res);
+  }
+
+  @Post('zalo-miniapp/login')
+  @HttpCode(HttpStatus.OK)
+  async zaloMiniAppLogin(
+    @Body() dto: ZaloMiniAppLoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.commandBus.execute<
+      ZaloMiniAppLoginCommand,
+      UnifiedLoginResult
+    >(
+      new ZaloMiniAppLoginCommand(
+        dto.zaloMiniAppId,
+        dto.uid,
+        dto.accessToken,
+        dto.phoneToken,
+      ),
+    );
+
+    return this.respondWithAuthResult(result, res);
+  }
+
+  private respondWithAuthResult(result: UnifiedLoginResult, res: Response) {
     const cookieKeys = SCOPE_COOKIE_KEYS[result.scope];
     CookieUtil.setAuthCookies(
       res,
