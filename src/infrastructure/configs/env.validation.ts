@@ -78,6 +78,11 @@ export const envSchema = z.object({
   ZALO_OA_SECRET_KEY: z.string().min(1),
   ZALO_OA_REDIRECT_URI: z.string().min(1),
   ZALO_OA_STATE_SECRET: z.string().min(1),
+  ZALO_OA_MOCK_MODE: z.string().optional(),
+  ZALO_OA_MOCK_CALLBACK_URL: z.string().optional(),
+
+  // Zalo Mini App (per-merchant credentials live in integration_connections, not env)
+  ZALO_MINIAPP_MOCK_MODE: z.string().optional(),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;
