@@ -8,6 +8,8 @@ import { TypeOrmIntegrationConnectionRepository } from './infrastructure/persist
 import { ZBS_TEMPLATE_REPOSITORY } from './domain/repositories/zbs-template.repository.interface';
 import { TypeOrmZbsTemplateRepository } from './infrastructure/persistence/repositories/typeorm-zbs-template.repository';
 import { ZaloOaGateway } from './infrastructure/gateways/zalo-oa.gateway';
+import { ZaloMiniAppGateway } from './infrastructure/gateways/zalo-miniapp.gateway';
+import { ResolveZaloMiniAppConnectionService } from './application/services/resolve-zalo-miniapp-connection.service';
 import { IntegrationGatewayFactory } from './infrastructure/gateways/integration-gateway.factory';
 import { MESSAGING_GATEWAYS } from './infrastructure/gateways/messaging-gateways.token';
 import { ZaloOaStateService } from './infrastructure/services/zalo-oa-state.service';
@@ -61,6 +63,8 @@ import { ZbsTemplateWebhookController } from './presentation/http/zbs-template-w
     },
     IntegrationGatewayFactory,
     ZaloOaStateService,
+    ZaloMiniAppGateway,
+    ResolveZaloMiniAppConnectionService,
     LinkZaloOaHandler,
     SendZaloOaMessageHandler,
     SyncZbsTemplatesHandler,
@@ -73,6 +77,10 @@ import { ZbsTemplateWebhookController } from './presentation/http/zbs-template-w
     ListZbsTemplatesHandler,
     GetZbsTemplateHandler,
   ],
-  exports: [INTEGRATION_CONNECTION_REPOSITORY],
+  exports: [
+    INTEGRATION_CONNECTION_REPOSITORY,
+    ZaloMiniAppGateway,
+    ResolveZaloMiniAppConnectionService,
+  ],
 })
 export class IntegrationsModule {}
