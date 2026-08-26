@@ -2,6 +2,12 @@
 
 Ngày: 2026-08-26
 
+> **Cập nhật (2026-08-26, sau khi FE artemis triển khai):** 2 điểm dưới đây đã đổi so với thiết kế gốc trong tài liệu này, dựa trên phản hồi thực tế từ FE:
+> 1. **`phoneToken` là optional**, không bắt buộc — chỉ cần ở lần đăng nhập Zalo đầu tiên (khi customer chưa có `zaloUid` liên kết). Các lần đăng nhập sau (đã có `zaloUid` khớp) bỏ qua hoàn toàn bước xin quyền/giải mã SĐT.
+> 2. **Không dùng httpOnly cookie cho route này** — Zalo Mini App WebView không xử lý ổn định cookie cross-domain. `POST /auth/zalo-miniapp/login` trả `accessToken`/`refreshToken` trực tiếp trong JSON body để FE tự lưu và gắn `Authorization: Bearer`. Route `/auth/login` (website/dashboard) không đổi, vẫn dùng cookie như thiết kế gốc.
+>
+> Các phần "Xử lý lỗi" và "Kiến trúc" bên dưới vẫn mô tả đúng theo bản gốc ở các điểm khác — xem code thực tế (`zalo-miniapp-login.handler.ts`, `auth.controller.ts`) làm nguồn chân lý cho 2 điểm đã đổi.
+
 ## Bối cảnh
 
 Hệ thống hiện có `UnifiedLoginCommand` (module `auth`) xử lý đăng nhập theo 3 scope: `SYSTEM`, `MERCHANT`, `CUSTOMER`, dùng `identifier + password`, sinh JWT qua `TOKEN_GENERATOR_PORT` và set cookie theo scope (`CookieUtil`, `COOKIE_KEYS`).
